@@ -29,6 +29,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float testfloat;
 
+	APlayerController* PlayerController;
+	FVector MouseLocation;
+	FVector MouseDirection;
 
 protected:
 	// Called when the game starts or when spawned

@@ -19,16 +19,19 @@ ASingleLaserTower::ASingleLaserTower()
 	PlacementDecalComp = CreateDefaultSubobject<UDecalComponent>(TEXT("Decal Comp"));
 	
 	FTransform DecalTransform = FTransform(
-									FRotator(-90.0, 0.0, 0.0),	// Rotation
+									FRotator(90.0, 0.0, 0.0),	// Rotation
 									FVector(0.0, 0.0, 0.0),		// Location
 									FVector(1.0, TowerObjectData.PlacementRadius, TowerObjectData.PlacementRadius));	// Scale
-	PlacementDecalComp->SetWorldTransform(DecalTransform);
+	PlacementDecalComp->SetRelativeTransform(DecalTransform);
+	//PlacementDecalComp->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
+	//PlacementDecalComp->SetRelativeScale3D(FVector(1.0, TowerObjectData.PlacementRadius, TowerObjectData.PlacementRadius));
+	//PlacementDecalComp->SetRelativeRotation(FRotator(90.0, 0.0,))
 
 
 	MeshComp->SetupAttachment(RootComponent);
-	PlacementDecalComp->SetupAttachment(TowerObjectData.MeshComp);
+	PlacementDecalComp->SetupAttachment(MeshComp);
 
-	RootComponent = TowerObjectData.MeshComp;
+	RootComponent = MeshComp;
 
 	//RootComponent->bEditableWhenInherited = true;
 	//this->AddInstanceComponent(MeshComp);
@@ -44,6 +47,8 @@ void ASingleLaserTower::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	PlayerController = GetWorld()->GetFirstPlayerController();
+
 }
 
 FTowerObjectData & ASingleLaserTower::GetDataStruct()
@@ -58,5 +63,19 @@ void ASingleLaserTower::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-}
+	
+	if (PlayerController != nullptr)
+	{
+		if (!TowerObjectData.bPlaced )
+		{
+			FHitResult TraceHitResult;
+			PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+			FVector CursorFV = TraceHitResult.ImpactNormal;
+			FRotator CursorR = CursorFV.Rotation();
+			this->SetActorLocation(TraceHitResult.Location);
+			this->SetActorRotation(this->GetActorRotation());
+		}
+	}
 
+	//UE_LOG(LogTemp, Warning, TEXT("Relative Location, %d, %d, %d"), PlacementDecalComp->getlocation );
+}

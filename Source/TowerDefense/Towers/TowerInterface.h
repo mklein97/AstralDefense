@@ -20,6 +20,9 @@ struct FTowerObjectData
 	int Cost;
 	int Kills;
 
+	bool bPlaced = false;
+
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	//UStaticMeshComponent* MeshComp;
 

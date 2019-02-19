@@ -11,3 +11,4 @@ Interval 1 Dev-Log
 02/14/2019: 2 hours in-class Senior Project Talk
 	4 hours making Tower Interface and First Outline of SingleLaserTower
 02/15/2019: 4 hours Adding SingleLaserTower spawning/attack radius decal and in editor radius config
+02/17/2019: 3 hours Working on cursor Tower placement with a simple UI button to spawn Tower
