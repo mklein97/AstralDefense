@@ -21,6 +21,10 @@ struct FTowerObjectData
 	int Kills;
 
 	bool bPlaced = false;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bPlacing = false;
+	bool bCollidesWith = false;
 
 
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
@@ -50,4 +54,6 @@ class TOWERDEFENSE_API ITowerInterface
 public:
 	
 	virtual FTowerObjectData& GetDataStruct() = 0;
+
+	virtual bool IsPlacing() = 0;
 };

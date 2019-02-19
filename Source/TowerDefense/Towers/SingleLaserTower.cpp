@@ -23,9 +23,7 @@ ASingleLaserTower::ASingleLaserTower()
 									FVector(0.0, 0.0, 0.0),		// Location
 									FVector(1.0, TowerObjectData.PlacementRadius, TowerObjectData.PlacementRadius));	// Scale
 	PlacementDecalComp->SetRelativeTransform(DecalTransform);
-	//PlacementDecalComp->SetRelativeLocation(FVector(0.0, 0.0, 0.0));
-	//PlacementDecalComp->SetRelativeScale3D(FVector(1.0, TowerObjectData.PlacementRadius, TowerObjectData.PlacementRadius));
-	//PlacementDecalComp->SetRelativeRotation(FRotator(90.0, 0.0,))
+
 
 
 	MeshComp->SetupAttachment(RootComponent);
@@ -33,11 +31,6 @@ ASingleLaserTower::ASingleLaserTower()
 
 	RootComponent = MeshComp;
 
-	//RootComponent->bEditableWhenInherited = true;
-	//this->AddInstanceComponent(MeshComp);
-	//this->AddInstanceComponent(PlacementDecalComp);
-
-	//TowerObjectData.MeshComp->RegisterComponent();
 
 	TowerObjectData.Cost = 50;
 }
@@ -58,14 +51,32 @@ FTowerObjectData & ASingleLaserTower::GetDataStruct()
 	return TowerObjectData;
 }
 
+bool ASingleLaserTower::IsPlacing()
+{
+	if (TowerObjectData.bPlacing)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
 // Called every frame
 void ASingleLaserTower::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	
+
 	if (PlayerController != nullptr)
 	{
+		if (!TowerObjectData.bCollidesWith)
+		{
+			//PlayerController->
+		}
+
 		if (!TowerObjectData.bPlaced )
 		{
 			FHitResult TraceHitResult;

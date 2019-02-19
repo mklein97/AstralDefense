@@ -40,6 +40,8 @@ protected:
 public:	
 	FTowerObjectData& GetDataStruct();
 
+	bool IsPlacing();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
