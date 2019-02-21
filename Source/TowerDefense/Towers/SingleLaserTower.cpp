@@ -44,13 +44,14 @@ void ASingleLaserTower::BeginPlay()
 
 }
 
-FTowerObjectData & ASingleLaserTower::GetDataStruct()
+FTowerObjectData * ASingleLaserTower::GetDataStruct()
 {
 	// TODO: insert return statement here
 
-	return TowerObjectData;
+	return &TowerObjectData;
 }
 
+/*
 bool ASingleLaserTower::IsPlacing()
 {
 	if (TowerObjectData.bPlacing)
@@ -61,6 +62,20 @@ bool ASingleLaserTower::IsPlacing()
 	{
 		return false;
 	}
+}*/
+
+void ASingleLaserTower::SetPlaced()
+{
+	ITowerInterface::SetPlaced();
+	DisablePlacementDecal();
+	//this->TowerObjectData.bPlaced = true;
+	//DisablePlacementDecal();
+}
+
+void ASingleLaserTower::DisablePlacementDecal()
+{
+	UE_LOG(LogTemp, Warning, TEXT("In Disable"));
+	PlacementDecalComp->UnregisterComponent();
 }
 
 // Called every frame

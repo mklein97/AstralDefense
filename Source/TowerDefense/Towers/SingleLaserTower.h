@@ -38,9 +38,11 @@ protected:
 	virtual void BeginPlay() override;
 
 public:	
-	FTowerObjectData& GetDataStruct();
+	FTowerObjectData* GetDataStruct();
 
-	bool IsPlacing();
+	//bool IsPlacing();
+	void SetPlaced();
+	void DisablePlacementDecal();
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

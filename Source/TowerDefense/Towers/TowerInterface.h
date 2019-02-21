@@ -53,7 +53,10 @@ class TOWERDEFENSE_API ITowerInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	
-	virtual FTowerObjectData& GetDataStruct() = 0;
+	virtual FTowerObjectData* GetDataStruct() = 0;
 
-	virtual bool IsPlacing() = 0;
+	//virtual bool IsPlacing() ;
+	//UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	virtual void SetPlaced() = 0;
+	virtual void DisablePlacementDecal() = 0;
 };

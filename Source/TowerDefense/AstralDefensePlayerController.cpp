@@ -19,7 +19,7 @@ void AAstralDefensePlayerController::PlayerTick(float DeltaTime)
 	if (bMoveToMouseCursor)
 	{
 		PlaceTower();
-		//MoveToMouseCursor();
+		bMoveToMouseCursor = false;
 	}
 }
 
@@ -41,9 +41,11 @@ void AAstralDefensePlayerController::PlaceTower()
 	for (TActorIterator<ASingleLaserTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 	{
 		// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
-		ASingleLaserTower *Mesh = *ActorItr;
-		ClientMessage(ActorItr->GetName());
-		ClientMessage(ActorItr->GetActorLocation().ToString());
+		ASingleLaserTower *Tower = *ActorItr;
+		Tower->SetPlaced();
+		UE_LOG(LogTemp, Warning, TEXT("Tower Name: %s"), *Tower->GetName());
+		//ClientMessage(ActorItr->GetName());
+		//ClientMessage(ActorItr->GetActorLocation().ToString());
 	}
 }
 
@@ -80,13 +82,13 @@ void AAstralDefensePlayerController::SetNewMoveDestination(const FVector DestLoc
 void AAstralDefensePlayerController::OnSetDestinationPressed()
 {
 	// set flag to keep updating destination until released
-	bMoveToMouseCursor = true;
+	//bMoveToMouseCursor = true;
 }
 
 void AAstralDefensePlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
-	bMoveToMouseCursor = false;
+	bMoveToMouseCursor = true;
 }
 
 

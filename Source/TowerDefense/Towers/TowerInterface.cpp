@@ -4,3 +4,26 @@
 
 // Add default functionality here for any ITowerInterface functions that are not pure virtual.
 
+/*bool ITowerInterface::IsPlacing()
+{
+	FTowerObjectData TowerOD = GetDataStruct();
+	if (TowerOD.bPlacing)
+		return true;
+	else
+		return false;
+}*/
+
+void ITowerInterface::SetPlaced()
+{
+	FTowerObjectData* TowerOD = GetDataStruct();
+	TowerOD->bPlaced = true;
+	//bool test = TowerOD->bPlaced;
+
+	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );
+	
+	//test = TowerOD->bPlaced;
+	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );
+	//test = true;
+	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );
+
+}
