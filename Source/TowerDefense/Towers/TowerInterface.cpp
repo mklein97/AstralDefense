@@ -17,6 +17,7 @@ void ITowerInterface::SetPlaced()
 {
 	FTowerObjectData* TowerOD = GetDataStruct();
 	TowerOD->bPlaced = true;
+	TowerOD->bPlacing = false;
 	//bool test = TowerOD->bPlaced;
 
 	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );

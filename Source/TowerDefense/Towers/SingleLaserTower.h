@@ -6,7 +6,10 @@
 #include "GameFramework/Actor.h"
 #include "Components/DecalComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "TowerInterface.h"
+#include "../AstralDefensePlayerController.h"
+#include "../Decals/AstralDefenseDecalComponent.h"
 #include "SingleLaserTower.generated.h"
 
 UCLASS()
@@ -21,11 +24,19 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tower Properties")
 	FTowerObjectData TowerObjectData;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	UDecalComponent* PlacementDecalComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UAstralDefenseDecalComponent* UnableDecalComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UAstralDefenseDecalComponent* AttackRadiusDecalComp;
+
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USphereComponent* CollisionComp;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float testfloat;
 
@@ -42,7 +53,15 @@ public:
 
 	//bool IsPlacing();
 	void SetPlaced();
-	void DisablePlacementDecal();
+	void DisableAttackRadiusDecal();
+
+	UFUNCTION()
+	void OnCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OffCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	bool IsCollidingWith(ITowerInterface &otherActor);
 
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

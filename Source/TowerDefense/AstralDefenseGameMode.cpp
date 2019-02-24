@@ -17,6 +17,9 @@ AAstralDefenseGameMode::AAstralDefenseGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("In AstralGM"));
+
 }
 
 void AAstralDefenseGameMode::BeginPlay()

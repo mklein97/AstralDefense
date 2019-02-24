@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "AstralDefensePlayerController.generated.h"
 
+class ASingleLaserTower;
 /**
  * 
  */
@@ -16,6 +17,9 @@ class TOWERDEFENSE_API AAstralDefensePlayerController : public APlayerController
 	
 public:
 	AAstralDefensePlayerController();
+	void SetPlacingTower(ASingleLaserTower* Tower);
+
+	virtual void Tick(float DeltaTime) override;
 
 protected:
 	/** True if the controlled character should navigate to the mouse cursor. */
@@ -35,6 +39,9 @@ protected:
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
+
+	ASingleLaserTower* PlacingTower;
+	
 
 
 	void PlaceTower();

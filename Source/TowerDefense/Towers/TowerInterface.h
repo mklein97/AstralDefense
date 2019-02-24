@@ -24,9 +24,17 @@ struct FTowerObjectData
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bPlacing = false;
-	bool bCollidesWith = false;
+	bool bCollidesToggle = true;
+	bool bNotCollidesToggle = false;
 
+	FBoxSphereBounds DecalBounds;
+	FBoxSphereBounds MeshBounds;
+	FBoxSphereBounds CollisionBounds;
 
+	FVector ActorLocation;
+
+	UMaterialInstance* PlacementMatInst;
+	UMaterialInstance* UnableMatInst;
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	//UStaticMeshComponent* MeshComp;
 
@@ -58,5 +66,6 @@ public:
 	//virtual bool IsPlacing() ;
 	//UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	virtual void SetPlaced() = 0;
-	virtual void DisablePlacementDecal() = 0;
+	virtual void DisableAttackRadiusDecal() = 0;
+	virtual bool IsCollidingWith(ITowerInterface &otherActor) = 0;
 };
