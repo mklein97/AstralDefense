@@ -36,6 +36,9 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* CollisionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USphereComponent* AttackRadiusComp;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float testfloat;
@@ -60,6 +63,10 @@ public:
 
 	UFUNCTION()
 	void OffCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void OnSeen(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
+
 
 	bool IsCollidingWith(ITowerInterface &otherActor);
 

@@ -45,6 +45,7 @@ ASingleLaserTower::ASingleLaserTower()
 
 
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Comp"));
+	AttackRadiusComp = CreateDefaultSubobject<USphereComponent>(TEXT("Attack Radius Comp"));
 
 	CollisionComp->SetRelativeTransform(
 		FTransform(
@@ -70,6 +71,8 @@ ASingleLaserTower::ASingleLaserTower()
 	AttackRadiusDecalComp->SetupAttachment(MeshComp);
 
 	CollisionComp->SetupAttachment(MeshComp);
+	AttackRadiusComp->SetupAttachment(MeshComp);
+
 
 	RootComponent = MeshComp;
 
@@ -114,6 +117,8 @@ void ASingleLaserTower::BeginPlay()
 	//UE_LOG(LogTemp, Warning, TEXT("MeshBounds Box Extent: %s"), *TowerObjectData.MeshBounds.BoxExtent.ToString());
 
 	CollisionComp->SetSphereRadius((TowerObjectData.MeshBounds.BoxExtent.X + TowerObjectData.MeshBounds.BoxExtent.Y) / 2);
+	AttackRadiusComp->SetSphereRadius(TowerObjectData.AttackRadius);
+
 	TowerObjectData.CollisionBounds = CollisionComp->CalcBounds(FTransform(
 		FRotator(0, 0, 0),
 		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
@@ -126,6 +131,11 @@ void ASingleLaserTower::BeginPlay()
 	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASingleLaserTower::OnCollision);
 	CollisionComp->OnComponentEndOverlap.AddDynamic(this, &ASingleLaserTower::OffCollision);
 
+	AttackRadiusComp->bHiddenInGame = false;
+	AttackRadiusComp->SetGenerateOverlapEvents(true);
+	AttackRadiusComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+	AttackRadiusComp->OnComponentBeginOverlap.AddDynamic(this, &ASingleLaserTower::OnSeen);
+	//AttackRadiusComp->OnComponentEndOverlap.AddDynamic(this, &ASingleLaserTower::OffCollision);
 
 	//UE_LOG(LogTemp, Warning, TEXT("This Sphere: %f"), this->TowerObjectData.CollisionBounds.GetSphere().W);
 	//UE_LOG(LogTemp, Warning, TEXT("This Sphere: %f"), CollisionComp->GetScaledSphereRadius());
@@ -222,6 +232,21 @@ void ASingleLaserTower::OffCollision(UPrimitiveComponent * OverlappedComponent, 
 	}
 }
 
+void ASingleLaserTower::OnSeen(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult & Hit)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, TEXT("Seen a Pawn"));
+	if (this->TowerObjectData.CurrentTarget == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Got a target!"));
+		this->TowerObjectData.CurrentTarget = Cast<APawn>(OtherActor);
+
+	}
+	else
+	{
+
+	}
+}
+
 bool ASingleLaserTower::IsCollidingWith(ITowerInterface &otherActor)
 {
 	FTowerObjectData* tempTOD = otherActor.GetDataStruct();
@@ -289,7 +314,7 @@ void ASingleLaserTower::Tick(float DeltaTime)
 			FRotator CursorR = CursorFV.Rotation();
 			this->SetActorLocation(TraceHitResult.Location);
 			this->SetActorRotation(this->GetActorRotation());
-			UE_LOG(LogTemp, Warning, TEXT("CursorLocation: %s"), *TraceHitResult.Location.ToString());
+			//UE_LOG(LogTemp, Warning, TEXT("CursorLocation: %s"), *TraceHitResult.Location.ToString());
 
 			/*
 			if (CollisionComp)
@@ -306,6 +331,31 @@ void ASingleLaserTower::Tick(float DeltaTime)
 					1.0f);
 			}
 			*/
+		}
+		else
+		{
+			if (TowerObjectData.CurrentTarget != nullptr)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Looking at target!"));
+
+				DrawDebugSphere(
+					GetWorld(),
+					TowerObjectData.CurrentTarget->GetActorLocation(),
+					50,
+					12,
+					FColor::Emerald,
+					false,
+					1.0f);
+				
+				FVector Direction = TowerObjectData.CurrentTarget->GetActorLocation() - this->GetActorLocation();
+				Direction.Normalize();
+
+				FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+				NewLookAt.Pitch = 0.0f;
+				NewLookAt.Roll = 0.0f;
+				
+				SetActorRotation(NewLookAt);
+			}
 		}
 		/*
 		if (CollisionComp)

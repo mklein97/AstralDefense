@@ -37,7 +37,7 @@ struct FTowerObjectData
 	UMaterialInstance* UnableMatInst;
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	//UStaticMeshComponent* MeshComp;
-
+	APawn* CurrentTarget;
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	//UDecalComponent* PlacementDecalComp;
 
