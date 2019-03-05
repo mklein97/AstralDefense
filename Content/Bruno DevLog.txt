@@ -1,0 +1,23 @@
+Bruno Rebaza
+
+Interval 1 Dev-Log
+
+02/07/2019 - 02/28/2019
+
+02/07/2019: Group was formed
+02/12/2019: 2 hours in-class designing game features
+	30 min Source Control setup
+
+02/14/2019: 2 hours IN-CLASS Senior Project Talk
+	4 hours making Tower Interface and First Outline of SingleLaserTower
+02/15/2019: 4 hours Adding SingleLaserTower spawning/attack radius decal and in editor radius config
+02/17/2019: 3 hours Working on cursor Tower placement with a simple UI button to spawn Tower
+02/19/2019: 2 hours IN-CLASS Tower Placement
+02/21/2019: 2 hours IN-CLASS Tower Placement Complete, Details to come
+02/21/2019: 5 hours Worked on TowerPlacement Mesh Collision
+02/22/2019: 6 hours Collision Worked, needed tweaks to Decals
+02/23/2019: 4 hours Small Overhaul on Collision, Tower Placement is now working as intended
+02/26/2019: 2 hours in class Merge Day
+02/28/2019: 2 hours in class Tower Rotation following Pawn
+02/02/2019: 3 hours Getting Single Laser Projectile Working
+02/04/2019: 3 hours Finishing Projectile Shooting towards the first pawn in Tower's attack radius
