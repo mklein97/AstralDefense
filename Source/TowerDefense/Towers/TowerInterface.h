@@ -16,6 +16,11 @@ struct FTowerObjectData
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackRadius;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float LaserFireRate;
+
+	bool Reloading;
 
 	int Cost;
 	int Kills;
@@ -43,6 +48,8 @@ struct FTowerObjectData
 
 	//UPROPERTY(EditAnywhere)
 	//UDecalComponent* AttackDecalComp;
+
+	TArray<APawn*> AllTargets;
 };
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)

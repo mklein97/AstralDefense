@@ -1,10 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 #include "SingleLaserTower.h"
 #include "DrawDebugHelpers.h"
+#include "../Projectiles/SingleLaserProjectile.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Materials/MaterialInstanceDynamic.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/Engine.h"
+#include "TimerManager.h"
 
 // Sets default values
 ASingleLaserTower::ASingleLaserTower()
@@ -18,7 +20,9 @@ ASingleLaserTower::ASingleLaserTower()
 	//TowerObjectData.MeshComp->bEditableWhenInherited = true;
 	//TowerObjectData.AttackRadiusDecalComp->bEditableWhenInherited = true;
 
-	TowerObjectData.AttackRadius = 100;
+	TowerObjectData.AttackRadius = 1000;
+	TowerObjectData.LaserFireRate = 2;
+
 	////////////////
 	UnableDecalComp = CreateDefaultSubobject<UAstralDefenseDecalComponent>(TEXT("Unable Decal Comp"));
 	AttackRadiusDecalComp = CreateDefaultSubobject<UAstralDefenseDecalComponent>(TEXT("Attack  Decal Comp"));
@@ -80,9 +84,6 @@ ASingleLaserTower::ASingleLaserTower()
 
 
 
-
-
-
 }
 
 // Called when the game starts or when spawned
@@ -135,7 +136,7 @@ void ASingleLaserTower::BeginPlay()
 	AttackRadiusComp->SetGenerateOverlapEvents(true);
 	AttackRadiusComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
 	AttackRadiusComp->OnComponentBeginOverlap.AddDynamic(this, &ASingleLaserTower::OnSeen);
-	//AttackRadiusComp->OnComponentEndOverlap.AddDynamic(this, &ASingleLaserTower::OffCollision);
+	AttackRadiusComp->OnComponentEndOverlap.AddDynamic(this, &ASingleLaserTower::OffSeen);
 
 	//UE_LOG(LogTemp, Warning, TEXT("This Sphere: %f"), this->TowerObjectData.CollisionBounds.GetSphere().W);
 	//UE_LOG(LogTemp, Warning, TEXT("This Sphere: %f"), CollisionComp->GetScaledSphereRadius());
@@ -147,6 +148,9 @@ void ASingleLaserTower::BeginPlay()
 	//UE_LOG(LogTemp, Warning, TEXT("Collision Sphere Sphere Radius: %f"), CollisionComp->CalcBounds(FTransform()).GetSphere().W);
 
 	TowerObjectData.ActorLocation = this->GetActorLocation();
+	
+	TowerObjectData.LaserFireRate = 2;
+	TowerObjectData.Reloading = false;
 }
 
 FTowerObjectData * ASingleLaserTower::GetDataStruct()
@@ -234,16 +238,83 @@ void ASingleLaserTower::OffCollision(UPrimitiveComponent * OverlappedComponent, 
 
 void ASingleLaserTower::OnSeen(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult & Hit)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, TEXT("Seen a Pawn"));
-	if (this->TowerObjectData.CurrentTarget == nullptr)
+	if (OtherActor->IsA(ASingleLaserProjectile::StaticClass()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Got a target!"));
-		this->TowerObjectData.CurrentTarget = Cast<APawn>(OtherActor);
 
 	}
 	else
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, TEXT("Seen a Pawn"));
 
+		if (this->TowerObjectData.CurrentTarget == nullptr)
+		{
+
+			UE_LOG(LogTemp, Warning, TEXT("Got a target!"));
+			this->TowerObjectData.CurrentTarget = Cast<APawn>(OtherActor);
+
+
+		}
+		else
+		{
+
+		}
+		this->TowerObjectData.AllTargets.Add(Cast<APawn>(OtherActor));
+	}
+
+}
+
+void ASingleLaserTower::OffSeen(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+
+	if (OtherActor->IsA(ASingleLaserProjectile::StaticClass()))
+	{
+
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::White, TEXT("Pawn is leaving"));
+
+		this->TowerObjectData.AllTargets.Remove(TowerObjectData.CurrentTarget);
+		if (TowerObjectData.AllTargets.Num() != 0)
+		{
+			this->TowerObjectData.CurrentTarget = TowerObjectData.AllTargets[0];
+		}
+		else
+		{
+			this->TowerObjectData.CurrentTarget = nullptr;
+		}
+	}
+}
+
+void ASingleLaserTower::ResetFire()
+{
+	this->TowerObjectData.Reloading = false;
+	GetWorldTimerManager().ClearTimer(TimerHandle_FireRate);
+}
+
+void ASingleLaserTower::Fire()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("Attempting to Fire Laser"));
+
+	// try and fire a projectile
+	if (ProjectileClass)
+	{
+		//FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
+		//FRotator MuzzleRotation = GunMeshComponent->GetSocketRotation("Muzzle");
+		FRotator TowerRotation = this->GetActorRotation();
+		FVector TowerLocation = this->GetActorLocation() + TowerRotation.Vector().Normalize() *100;
+		//Set Spawn Collision Handling Override
+		FActorSpawnParameters ActorSpawnParams;
+		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+		//ActorSpawnParams.Instigator = this;
+		// spawn the projectile at the muzzle
+		GetWorld()->SpawnActor<ASingleLaserProjectile>(ProjectileClass, TowerLocation, TowerRotation, ActorSpawnParams);
+	}
+
+	// try and play the sound if specified
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
 	}
 }
 
@@ -336,7 +407,7 @@ void ASingleLaserTower::Tick(float DeltaTime)
 		{
 			if (TowerObjectData.CurrentTarget != nullptr)
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Looking at target!"));
+				//UE_LOG(LogTemp, Warning, TEXT("Looking at target!"));
 
 				DrawDebugSphere(
 					GetWorld(),
@@ -353,8 +424,19 @@ void ASingleLaserTower::Tick(float DeltaTime)
 				FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
 				NewLookAt.Pitch = 0.0f;
 				NewLookAt.Roll = 0.0f;
-				
 				SetActorRotation(NewLookAt);
+				if (!this->TowerObjectData.Reloading)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Shoot!!"));
+					UE_LOG(LogTemp, Warning, TEXT("Fire Rate: %f"), TowerObjectData.LaserFireRate);
+					Fire();
+					GetWorldTimerManager().SetTimer(TimerHandle_FireRate, this, &ASingleLaserTower::ResetFire, 2.0f);
+
+					this->TowerObjectData.Reloading = true;
+				}
+
+				//UE_LOG(LogTemp, Warning, TEXT("Current Time is %f"), GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_FireRate));
+				
 			}
 		}
 		/*
