@@ -86,5 +86,6 @@ void ATowerDefenseCharacter::Tick(float DeltaSeconds)
 			CursorToWorld->SetWorldLocation(TraceHitResult.Location);
 			CursorToWorld->SetWorldRotation(CursorR);
 		}
+		
 	}
 }
