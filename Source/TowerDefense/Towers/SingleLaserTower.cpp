@@ -430,7 +430,7 @@ void ASingleLaserTower::Tick(float DeltaTime)
 					UE_LOG(LogTemp, Warning, TEXT("Shoot!!"));
 					UE_LOG(LogTemp, Warning, TEXT("Fire Rate: %f"), TowerObjectData.LaserFireRate);
 					Fire();
-					GetWorldTimerManager().SetTimer(TimerHandle_FireRate, this, &ASingleLaserTower::ResetFire, 2.0f);
+					GetWorldTimerManager().SetTimer(TimerHandle_FireRate, this, &ASingleLaserTower::ResetFire, 1.0f);
 
 					this->TowerObjectData.Reloading = true;
 				}
