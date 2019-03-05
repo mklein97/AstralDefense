@@ -12,6 +12,8 @@
 #include "../Decals/AstralDefenseDecalComponent.h"
 #include "SingleLaserTower.generated.h"
 
+class ASingleLaserProjectile;
+class USoundBase;
 UCLASS()
 class TOWERDEFENSE_API ASingleLaserTower : public AActor, public ITowerInterface
 {
@@ -36,6 +38,16 @@ public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* CollisionComp;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	USphereComponent* AttackRadiusComp;
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+	TSubclassOf<ASingleLaserProjectile> ProjectileClass;
+
+	/** Sound to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+	USoundBase* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float testfloat;
@@ -60,6 +72,20 @@ public:
 
 	UFUNCTION()
 	void OffCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void OnSeen(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
+
+	UFUNCTION()
+	void OffSeen(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	/** Fires a Laser Projectile */
+	UFUNCTION()
+	void ResetFire();
+
+	void Fire();
+
+	FTimerHandle TimerHandle_FireRate;
 
 	bool IsCollidingWith(ITowerInterface &otherActor);
 
