@@ -1,0 +1,21 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.21",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "TowerDefense",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+<<<<<<< HEAD
+				"Engine"
+=======
+				"Engine",
+				"AIModule"
+>>>>>>> master
+			]
+		}
+	]
+}
