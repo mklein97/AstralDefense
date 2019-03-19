@@ -29,12 +29,14 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	UStaticMeshComponent* MeshComp;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UAstralDefenseDecalComponent* UnableDecalComp;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//UAstralDefenseDecalComponent* UnableDecalComp;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//UAstralDefenseDecalComponent* AttackRadiusDecalComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UAstralDefenseDecalComponent* AttackRadiusDecalComp;
-
+	UStaticMeshComponent* MaterialPlane;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	USphereComponent* CollisionComp;
@@ -59,6 +61,10 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	UMaterialInstance* PlacementMat;
+	UMaterialInstance* UnableMat;
+	UMaterialInstance* AttackRadMat;
 
 public:	
 	FTowerObjectData* GetDataStruct();

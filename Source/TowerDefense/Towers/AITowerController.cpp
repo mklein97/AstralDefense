@@ -46,6 +46,10 @@ void AAITowerController::Possess(APawn * Pawn)
 	Super::Possess(Pawn);
 }
 
+void AAITowerController::UnPossess()
+{
+}
+
 void AAITowerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);

@@ -6,7 +6,7 @@
 #include "AIController.h"
 #include "AITowerController.generated.h"
 
-//class UAISenseConfig_Sight
+class UBehaviorTreeComponent;
 /**
  * 
  */
@@ -16,16 +16,28 @@ class TOWERDEFENSE_API AAITowerController : public AAIController
 	GENERATED_BODY()
 
 public:
-	AAITowerController();
-
-	virtual void BeginPlay() override;
+	AAITowerController(const FObjectInitializer& ObjectInitializer);
 	
 	virtual void Possess(APawn* Pawn) override;
+	
+	virtual void UnPossess() override;
+
+	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	UBehaviorTreeComponent* BehaviorComp;
+	UBlackboardComponent* BlackboardComp;
+
 	virtual FRotator GetControlRotation() const override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName TowerTypeKeyName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName TargetEnemyKeyNamel;
+
+public:
 	UFUNCTION()
 	void OnPawnDetected(const TArray<AActor*> &DetectedPawns);
 

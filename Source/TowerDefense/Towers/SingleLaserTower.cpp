@@ -17,36 +17,45 @@ ASingleLaserTower::ASingleLaserTower()
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Comp"));
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	MaterialPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Plane Material"));
+	MaterialPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	//TowerObjectData.MeshComp->bEditableWhenInherited = true;
 	//TowerObjectData.AttackRadiusDecalComp->bEditableWhenInherited = true;
 
-	TowerObjectData.AttackRadius = 1000;
+	TowerObjectData.AttackRadius = 20;
 	TowerObjectData.LaserFireRate = 2;
 
 	////////////////
-	UnableDecalComp = CreateDefaultSubobject<UAstralDefenseDecalComponent>(TEXT("Unable Decal Comp"));
-	AttackRadiusDecalComp = CreateDefaultSubobject<UAstralDefenseDecalComponent>(TEXT("Attack  Decal Comp"));
+	//UnableDecalComp = CreateDefaultSubobject<UAstralDefenseDecalComponent>(TEXT("Unable Decal Comp"));
+	//AttackRadiusDecalComp = CreateDefaultSubobject<UAstralDefenseDecalComponent>(TEXT("Attack  Decal Comp"));
 
-	ConstructorHelpers::FObjectFinder<UMaterial>PlacementObj(TEXT("Material'/Game/TopDownCPP/Materials/M_Tower_Placement.M_Tower_Placement'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>PlacementObj(TEXT("MaterialInstanceConstant'/Game/TopDownCPP/Materials/M_TowerPlacing.M_TowerPlacing'"));
 	if (PlacementObj.Succeeded())
 	{
-		UMaterial *PlacementMat = PlacementObj.Object;
-		TowerObjectData.PlacementMatInst = (UMaterialInstanceDynamic*)PlacementMat;
+		PlacementMat = PlacementObj.Object;
 	}
 
-	AttackRadiusDecalComp->SetDecalMaterial(TowerObjectData.PlacementMatInst);
-	AttackRadiusDecalComp->SetActive(true);
-
-
-	ConstructorHelpers::FObjectFinder<UMaterial>UnableObj(TEXT("Material'/Game/TopDownCPP/Materials/M_Unable_Placement.M_Unable_Placement'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/TopDownCPP/Materials/M_TowerUnable.M_TowerUnable'"));
 	if (UnableObj.Succeeded())
 	{
-		UMaterial *UnableMat = UnableObj.Object;
-		TowerObjectData.UnableMatInst = (UMaterialInstanceDynamic*)UnableMat;
+		UnableMat = UnableObj.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/TopDownCPP/Materials/M_TowerRange.M_TowerRange'"));
+	if (RangeObj.Succeeded())
+	{
+		AttackRadMat = RangeObj.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh>PlaneObj(TEXT("StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
+	if (PlaneObj.Succeeded())
+	{
+		MaterialPlane->SetStaticMesh(PlaneObj.Object);
 	}
 	////////////////////////
-	UnableDecalComp->SetDecalMaterial(TowerObjectData.UnableMatInst);
-
+	//UnableDecalComp->SetDecalMaterial(TowerObjectData.UnableMatInst);
+	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
+	MaterialPlane->SetRelativeScale3D(FVector(TowerObjectData.AttackRadius, TowerObjectData.AttackRadius, 1.0));
 
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Comp"));
 	AttackRadiusComp = CreateDefaultSubobject<USphereComponent>(TEXT("Attack Radius Comp"));
@@ -62,17 +71,18 @@ ASingleLaserTower::ASingleLaserTower()
 		FRotator(90.0, 0.0, 0.0),	// Rotation
 		FVector(0.0, 0.0, 0.0),		// Location
 		FVector(1.0, 1.0, 1.0));	// Scale
-	AttackRadiusDecalComp->SetRelativeTransform(DecalTransform);
-	UnableDecalComp->SetRelativeTransform(DecalTransform);
+	//AttackRadiusDecalComp->SetRelativeTransform(DecalTransform);
+	//UnableDecalComp->SetRelativeTransform(DecalTransform);
 
-	AttackRadiusDecalComp->DecalSize = FVector(5, TowerObjectData.AttackRadius, TowerObjectData.AttackRadius);
-	UnableDecalComp->DecalSize = FVector(5, TowerObjectData.AttackRadius, TowerObjectData.AttackRadius);
+	//AttackRadiusDecalComp->DecalSize = FVector(5, TowerObjectData.AttackRadius, TowerObjectData.AttackRadius);
+	//UnableDecalComp->DecalSize = FVector(5, TowerObjectData.AttackRadius, TowerObjectData.AttackRadius);
 
 
 
 	MeshComp->SetupAttachment(RootComponent);
-	UnableDecalComp->SetupAttachment(MeshComp);
-	AttackRadiusDecalComp->SetupAttachment(MeshComp);
+	//UnableDecalComp->SetupAttachment(MeshComp);
+	//AttackRadiusDecalComp->SetupAttachment(MeshComp);
+	MaterialPlane->SetupAttachment(MeshComp);
 
 	CollisionComp->SetupAttachment(MeshComp);
 	AttackRadiusComp->SetupAttachment(MeshComp);
@@ -96,19 +106,12 @@ void ASingleLaserTower::BeginPlay()
 	{
 		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
 	}
+	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
+	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
+	MaterialPlane->SetRelativeScale3D(FVector(TowerObjectData.AttackRadius, TowerObjectData.AttackRadius,1.0) );
 
-
-	AttackRadiusDecalComp->UpdateBounds();
-	AttackRadiusDecalComp->SetDecalMaterial(TowerObjectData.PlacementMatInst);
-	AttackRadiusDecalComp->RegisterComponent();
-	AttackRadiusDecalComp->SetActive(true);
-
-	UnableDecalComp->SetDecalMaterial(TowerObjectData.UnableMatInst);
-	UnableDecalComp->RegisterComponent();
-	UnableDecalComp->SetActive(false);
-
-	TowerObjectData.DecalBounds = AttackRadiusDecalComp->CalcBounds(FTransform());//AttackRadiusDecalComp->GetRelativeTransform());
+	//TowerObjectData.DecalBounds = AttackRadiusDecalComp->CalcBounds(FTransform());//AttackRadiusDecalComp->GetRelativeTransform());
 
 	//UE_LOG(LogTemp, Warning, TEXT("Sphere Radius: %f"), TowerObjectData.MeshBounds.SphereRadius);
 	//UE_LOG(LogTemp, Warning, TEXT("GETSPHERE Center: %s"), *TowerObjectData.MeshBounds.GetSphere().Center.ToString());
@@ -192,8 +195,9 @@ void ASingleLaserTower::SetPlaced()
 void ASingleLaserTower::DisableAttackRadiusDecal()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("In Disable"));
-	AttackRadiusDecalComp->UnregisterComponent();
-	UnableDecalComp->UnregisterComponent();
+	MaterialPlane->SetHiddenInGame(true);
+	//AttackRadiusDecalComp->UnregisterComponent();
+	//UnableDecalComp->UnregisterComponent();
 }
 
 void ASingleLaserTower::OnCollision(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult & Hit)
@@ -205,11 +209,11 @@ void ASingleLaserTower::OnCollision(UPrimitiveComponent * HitComp, AActor * Othe
 		if ((OtherActor != NULL))// && (OtherActor != this) && (OtherComp != NULL))
 		{
 			//ASingleLaserTower * OtherTower = Cast<ASingleLaserTower>(OtherActor);
+			MaterialPlane->SetHiddenInGame(false);
+			TowerObjectData.UnableMatInst = UMaterialInstanceDynamic::Create(UnableMat, this);
 
-			AttackRadiusDecalComp->UnregisterComponent();
-			AttackRadiusDecalComp->SetActive(false);
-			UnableDecalComp->RegisterComponent();
-			UnableDecalComp->SetActive(true);
+			MaterialPlane->SetMaterial(0, TowerObjectData.UnableMatInst);
+
 			UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to Red!"));
 
 
@@ -224,10 +228,11 @@ void ASingleLaserTower::OffCollision(UPrimitiveComponent * OverlappedComponent, 
 {
 	if (this->TowerObjectData.bPlacing)
 	{
-		UnableDecalComp->UnregisterComponent();
-		UnableDecalComp->SetActive(false);
-		AttackRadiusDecalComp->RegisterComponent();
-		AttackRadiusDecalComp->SetActive(true);
+		MaterialPlane->SetHiddenInGame(false);
+		TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
+
+		MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
+
 		UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to GREEN!"));
 
 
