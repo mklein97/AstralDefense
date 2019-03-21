@@ -16,11 +16,6 @@ struct FTowerObjectData
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float AttackRadius;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float LaserFireRate;
-
-	bool Reloading;
 
 	int Cost;
 	int Kills;
@@ -42,14 +37,12 @@ struct FTowerObjectData
 	UMaterialInstance* UnableMatInst;
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	//UStaticMeshComponent* MeshComp;
-	APawn* CurrentTarget;
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Meta = (AllowPrivateAccess = true))
 	//UDecalComponent* PlacementDecalComp;
 
 	//UPROPERTY(EditAnywhere)
 	//UDecalComponent* AttackDecalComp;
-
-	TArray<APawn*> AllTargets;
 };
 // This class does not need to be modified.
 UINTERFACE(MinimalAPI)
