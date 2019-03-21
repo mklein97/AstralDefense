@@ -43,7 +43,6 @@ ASingleLaserTower::ASingleLaserTower()
 	////////////////////////
 	UnableDecalComp->SetDecalMaterial(TowerObjectData.UnableMatInst);
 
-
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("Collision Comp"));
 
 	CollisionComp->SetRelativeTransform(
@@ -63,8 +62,6 @@ ASingleLaserTower::ASingleLaserTower()
 	AttackRadiusDecalComp->DecalSize = FVector(5, TowerObjectData.AttackRadius, TowerObjectData.AttackRadius);
 	UnableDecalComp->DecalSize = FVector(5, TowerObjectData.AttackRadius, TowerObjectData.AttackRadius);
 
-
-
 	MeshComp->SetupAttachment(RootComponent);
 	UnableDecalComp->SetupAttachment(MeshComp);
 	AttackRadiusDecalComp->SetupAttachment(MeshComp);
@@ -74,12 +71,6 @@ ASingleLaserTower::ASingleLaserTower()
 	RootComponent = MeshComp;
 
 	TowerObjectData.Cost = 50;
-
-
-
-
-
-
 }
 
 // Called when the game starts or when spawned
@@ -92,8 +83,6 @@ void ASingleLaserTower::BeginPlay()
 	{
 		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
 	}
-
-
 
 	AttackRadiusDecalComp->UpdateBounds();
 	AttackRadiusDecalComp->SetDecalMaterial(TowerObjectData.PlacementMatInst);
