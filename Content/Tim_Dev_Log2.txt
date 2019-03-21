@@ -1,0 +1,10 @@
+Realtime Interactive Time Sheet / Dev Log, Interval 2
+	
+March 19, 2019 1:20pm - 2:00pm
+	Modified the Information bar on the gui to have all items contained into a horizontal box with spacers for proper alignment
+	
+March 21, 2019 12:00pm - 2:00pm
+	Made a somewhat basic menu/title screen with settings, quit, and start functionality
+	Added a font
+	Added bg image
+	Made an ingame menu with some functionality, doesn't close tho :(
