@@ -59,7 +59,7 @@ struct FTowerObjectData
 	/************************************************************************/
 
 	UPROPERTY(EditDefaultsOnly, Category = "PlayerCondition")
-	float Health;
+	 float Health;
 
 	/* Holds hit data to replicate hits and death to clients */
 	UPROPERTY(EditAnywhere)

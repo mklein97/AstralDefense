@@ -19,5 +19,10 @@ Interval 1 Dev-Log
 02/23/2019: 4 hours Small Overhaul on Collision, Tower Placement is now working as intended
 02/26/2019: 2 hours in class Merge Day
 02/28/2019: 2 hours in class Tower Rotation following Pawn
-02/02/2019: 3 hours Getting Single Laser Projectile Working
-02/04/2019: 3 hours Finishing Projectile Shooting towards the first pawn in Tower's attack radius
+03/02/2019: 3 hours Getting Single Laser Projectile Working
+03/04/2019: 3 hours Finishing Projectile Shooting towards the first pawn in Tower's attack radius
+03/07/2019: 3 hours fixed decal not showing on invisible floor
+03/11/2019: 2 hours commenced rehaul from Actor to Pawn Tower
+03/16/2019: 2 hours continuing Pawn AI Tower
+03/19/2019: 3 hours finished Pawn AI Tower and added cost to towers
+03/25/2019: 6 hours Error in shooting for towers, had to revert to old version

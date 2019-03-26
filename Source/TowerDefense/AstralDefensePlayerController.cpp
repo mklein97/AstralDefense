@@ -3,6 +3,7 @@
 #include "AstralDefensePlayerController.h"
 #include "Blueprint//AIBlueprintHelperLibrary.h"
 #include "Towers/SingleLaserTower.h"
+#include "Towers/OneMissileTower.h"
 #include "Engine/Public/EngineUtils.h"
 #include "Engine/Engine.h"
 
@@ -138,7 +139,7 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 	bMoveToMouseCursor = true;
 }
 
-void AAstralDefensePlayerController::SetPlacingTower(ASingleLaserTower* Tower)
+void AAstralDefensePlayerController::SetPlacingTower(ASingleLaserTower * Tower)
 {
 	this->PlacingTower = Tower;
 }
@@ -152,6 +153,8 @@ void AAstralDefensePlayerController::Tick(float DeltaTime)
 		for (TActorIterator<ASingleLaserTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
 			ASingleLaserTower *Tower = *ActorItr;
+
+			//AOneMissileTower *Tower = *ActorItr;
 			FTransform LocalToWorld = FTransform(
 				FRotator(0, 0, 0),
 				Tower->GetActorLocation(),

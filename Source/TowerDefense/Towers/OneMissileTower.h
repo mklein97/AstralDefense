@@ -5,13 +5,21 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "TowerInterface.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "../AstralDefensePlayerController.h"
 #include "OneMissileTower.generated.h"
 
+class ASingleLaserProjectile;
 class USoundCue;
+class UAudioComponent;
 UCLASS()
 class TOWERDEFENSE_API AOneMissileTower : public APawn, public ITowerInterface
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tower Properties")
+		FTowerObjectData TowerObjectData;
 
 	/* Last time the player was spotted */
 	float LastSeenTime;
@@ -24,25 +32,46 @@ class TOWERDEFENSE_API AOneMissileTower : public APawn, public ITowerInterface
 
 	/* Time-out value to clear the sensed position of the player. Should be higher than Sense interval in the PawnSense component not never miss sense ticks. */
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	float SenseTimeOut;
+		float SenseTimeOut;
 
 	/* Resets after sense time-out to avoid unnecessary clearing of target each tick */
 	bool bSensedTarget;
 
 	UPROPERTY(VisibleAnywhere, Category = "AI")
-	class UPawnSensingComponent* PawnSensingComp;
+		class UPawnSensingComponent* PawnSensingComp;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		USphereComponent* CollisionComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UStaticMeshComponent* MaterialPlane;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UStaticMeshComponent* MeshComp;
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+		TSubclassOf<ASingleLaserProjectile> ProjectileClass;
+
+	APlayerController* PlayerController;
+	FVector MouseLocation;
+	FVector MouseDirection;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+		USoundBase* FireSound;
 protected:
-
+	UMaterialInstance* PlacementMat;
+	UMaterialInstance* UnableMat;
+	UMaterialInstance* AttackRadMat;
 	//virtual bool IsSprinting() const override;
 
 	/* Triggered by pawn sensing component when a pawn is spotted */
 	/* When using functions as delegates they need to be marked with UFUNCTION(). We assign this function to FSeePawnDelegate */
 	UFUNCTION()
-	void OnSeenPawn(APawn* Pawn);
+		void OnSeenPawn(APawn* Pawn);
 
 	UFUNCTION()
-	void OnHearNoise(APawn* PawnInstigator, const FVector& Location, float Volume);
+		void OnHearNoise(APawn* PawnInstigator, const FVector& Location, float Volume);
 
 	//UPROPERTY(VisibleAnywhere, Category = "Attacking")
 	//UCapsuleComponent* MeleeCollisionComp;
@@ -63,10 +92,10 @@ protected:
 	//void SimulateMeleeStrike_Implementation();
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attacking")
-	TSubclassOf<UDamageType> MissileDamageType;
+		TSubclassOf<UDamageType> MissileDamageType;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Attacking")
-	float MissileDamage;
+		float MissileDamage;
 
 	//UPROPERTY(EditDefaultsOnly, Category = "Attacking")
 	//UAnimMontage* MeleeAnimMontage;
@@ -80,10 +109,12 @@ protected:
 	UAudioComponent* PlayCharacterSound(USoundCue* CueToPlay);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundCue* SoundPlayerNoticed;
+		USoundCue* SoundPlayerNoticed;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Sound")
-	USoundCue* SoundAttackFire;
+		USoundCue* SoundAttackFire;
+
+
 
 	/* Timer handle to manage continous melee attacks while in range of a player */
 	FTimerHandle TimerHandle_MissileAttack;
@@ -93,45 +124,55 @@ protected:
 
 	/* Plays the idle, wandering or hunting sound */
 	UPROPERTY(VisibleAnywhere, Category = "Sound")
-	UAudioComponent* AudioLoopComp;
+		UAudioComponent* AudioLoopComp;
 
 	// UNCOMMENT
 	//void PlayHit(float DamageTaken, struct FDamageEvent const& DamageEvent, APawn* PawnInstigator, AActor* DamageCauser, bool bKilled) override;
 
+
+
+
 public:
+	FTowerObjectData* GetDataStruct();
+	void SetPlaced();
+	void DisableAttackRadiusDecal();
+	bool IsCollidingWith(ITowerInterface &otherActor);
+
+	UFUNCTION()
+		void OnCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
+
+	UFUNCTION()
+		void OffCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	// Sets default values for this pawn's properties
 
 	AOneMissileTower(const class FObjectInitializer& ObjectInitializer);
 
 	UPROPERTY(BlueprintReadWrite, Category = "Attacking")
-	bool bIsFiring;
+		bool bIsFiring;
 
 	/* The tower behavior we want this bot to execute, (passive/patrol) by specifying EditAnywhere we can edit this value per-instance when placed on the map. */
 	UPROPERTY(EditAnywhere, Category = "AI")
-	ETowerBehaviorType TowerType;
+		ETowerBehaviorType TowerType;
 
 	/* The thinking part of the brain, steers our zombie and makes decisions based on the data we feed it from the Blackboard */
 	/* Assigned at the Character level (instead of Controller) so we may use different zombie behaviors while re-using one controller. */
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	class UBehaviorTree* BehaviorTree;
+		class UBehaviorTree* BehaviorTree;
 
 	/* Change default bot type during gameplay */
 	void SetTowerType(ETowerBehaviorType NewType);
 
 
 	/////////////////////////////////////
-public:
-	// Sets default values for this pawn's properties
-	AOneMissileTower();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };

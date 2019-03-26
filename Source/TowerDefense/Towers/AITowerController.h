@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+#include "../Public/STypes.h"
 #include "AITowerController.generated.h"
 
 class UBehaviorTreeComponent;
+class AOneMissileTower;
 /**
  * 
  */
@@ -22,38 +24,55 @@ public:
 	
 	virtual void UnPossess() override;
 
-	virtual void BeginPlay() override;
-
-	virtual void Tick(float DeltaSeconds) override;
-
 	UBehaviorTreeComponent* BehaviorComp;
 	UBlackboardComponent* BlackboardComp;
 
-	virtual FRotator GetControlRotation() const override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
 	FName TowerTypeKeyName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "AI")
-	FName TargetEnemyKeyNamel;
+	FName TargetEnemyKeyName;
+
+	UPROPERTY(EditDefaultsOnly, Category = "AI")
+	FName SelfActorKeyName;
+
 
 public:
-	UFUNCTION()
-	void OnPawnDetected(const TArray<AActor*> &DetectedPawns);
+	//UFUNCTION()
+	//void OnPawnDetected(const TArray<AActor*> &DetectedPawns);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	float AISightRadius = 500.0f;
+	APawn* GetTargetEnemy();
+	
+	AOneMissileTower* GetSelfActor();
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	float AILoseSightRadius = AISightRadius + 50.0f;
+	void SetSelfActor(AOneMissileTower* Self);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	float AISightAge = 5.0f;
+	void SetTargetEnemy(APawn* NewTarget);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	float AIFieldOfView = 90.0f;
+	void SetBlackboardTowerType(ETowerBehaviorType NewType);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	class UAISenseConfig_Sight* SightConfig;
+
+	FORCEINLINE UBehaviorTreeComponent* GetBehaviorComp() const { return BehaviorComp; }
+
+	FORCEINLINE UBlackboardComponent* GetBlackboardComp() const { return BlackboardComp; }
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	//float AISightRadius = 500.0f;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	//float AILoseSightRadius = AISightRadius + 50.0f;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	//float AISightAge = 5.0f;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	//float AIFieldOfView = 90.0f;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	//class UAISenseConfig_Sight* SightConfig;
+
+	//virtual FRotator GetControlRotation() const override;
+
 	
 };
