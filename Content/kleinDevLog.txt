@@ -1,0 +1,7 @@
+Matt Klein
+
+Interval 1 Dev-Log
+
+2/12/2019 - 2/14/2019: Discussed project plans and set up version control
+
+2/19/2019 - 3/4/2019: Created and fine tuned camera controls for player and studied more on unreal version control

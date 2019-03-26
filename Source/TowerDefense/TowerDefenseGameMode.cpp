@@ -7,7 +7,8 @@
 
 ATowerDefenseGameMode::ATowerDefenseGameMode()
 {
-	// use our custom PlayerController class
+	/*
+	 use our custom PlayerController class
 	PlayerControllerClass = ATowerDefensePlayerController::StaticClass();
 
 	// set default pawn class to our Blueprinted character
@@ -16,4 +17,5 @@ ATowerDefenseGameMode::ATowerDefenseGameMode()
 	{
 		DefaultPawnClass = PlayerPawnBPClass.Class;
 	}
+	*/
 }
