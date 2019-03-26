@@ -16,7 +16,7 @@ public:
 	APlayerBase();
 
 	//Current Health of the Base object
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int32 Health;
 
 	UPROPERTY(EditAnywhere, Category = Movement)
