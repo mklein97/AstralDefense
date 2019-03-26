@@ -1,7 +1,9 @@
 Matt Klein
 
-Interval 1 Dev-Log
+Interval 2 Dev-Log
 
-2/12/2019 - 2/14/2019: Discussed project plans and set up version control
+3/7/2019: Discussed plans for 2nd interval
 
-2/19/2019 - 3/4/2019: Created and fine tuned camera controls for player and studied more on unreal version control
+3/12/2019 - 3/14/2019: Created PlayerBase class
+
+3/19/2019 - 3/21/2019: Created and added laser turret sound effects
