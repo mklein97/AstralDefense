@@ -1,0 +1,22 @@
+Realtime Interactive Time Sheet / Dev Log, Interval 1
+
+February 19, 2019 12:00pm - 2:00pm
+	Started brainstorming the gui layout
+	Drafted the basic gui layout onto a piece of paper
+	Developed a basic theme / style to the game
+	
+February 21, 2019 12:00pm - 2:00pm
+	Started constructing the basic gui elements and putting them into a canvas widget
+	Refined the gui elements by using proper panels instead of weird parenting and borders
+	
+February 26, 2019 12:00pm - 2:00pm
+	Made the tower bar gui element move relative to its size instead of magic numbers
+	Changed the color of some of the gui elements to better match the style
+	
+February 26, 2019 2:00pm - 2:14pm
+	Pushed the changes made to my branch to prepare for the presentation (got pushed back)
+	More gui element refinement, i.e color change and button functionality
+	
+February 28, 2019 1:10pm - 2:00pm
+	Merged the changes and tested to make sure the project was ready for demo after the first sprint
+	
