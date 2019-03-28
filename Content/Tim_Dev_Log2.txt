@@ -5,6 +5,14 @@ March 19, 2019 1:20pm - 2:00pm
 	
 March 21, 2019 12:00pm - 2:00pm
 	Made a somewhat basic menu/title screen with settings, quit, and start functionality
+		built with the title screen, as well as quit buttons, and a settings menu
 	Added a font
 	Added bg image
-	Made an ingame menu with some functionality, doesn't close tho :(
+	Made an ingame menu with some functionality
+		built in desktop quit, and quit to menu
+	
+March 26, 2019 11:00am - 1:00pm
+	Ingame menu closes now
+	Bound the base health to the healthbar
+	Merged all of the changes into main
+	
