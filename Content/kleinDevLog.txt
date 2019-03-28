@@ -1,0 +1,9 @@
+Matt Klein
+
+Interval 2 Dev-Log
+
+3/7/2019: Discussed plans for 2nd interval
+
+3/12/2019 - 3/14/2019: Created PlayerBase class
+
+3/19/2019 - 3/21/2019: Created and added laser turret sound effects
