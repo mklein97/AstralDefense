@@ -27,9 +27,12 @@ EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & O
 		FVector TLocation = MyController->GetTargetLocation(Target);
 		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("Attempting to Fire Laser"));
 
+
 		// try and fire a projectile
-		if (Tower->ProjectileClass)
+		if (Tower && Tower->TowerObjectData.bPlaced &&Tower->ProjectileClass)
 		{
+
+
 			//FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
 			//FRotator MuzzleRotation = GunMeshComponent->GetSocketRotation("Muzzle");
 			FRotator TowerRotation = Tower->GetActorRotation();

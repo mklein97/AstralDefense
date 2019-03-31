@@ -37,6 +37,7 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 	PawnSensingComp->SightRadius = TowerObjectData.AttackRadius;
 	PawnSensingComp->HearingThreshold = 600;
 	PawnSensingComp->LOSHearingThreshold = 1200;
+	PawnSensingComp->bOnlySensePlayers = false;
 
 	/* These values are matched up to the CapsuleComponent above and are used to find navigation paths */
 	//GetMovementComponent()->NavAgentProps.AgentRadius = 42;
@@ -233,12 +234,12 @@ void AOneMissileTower::BeginPlay()
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController != nullptr)
 	{
-		//Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
+		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
 	}
 	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
 	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
-	MaterialPlane->SetRelativeScale3D(FVector(TowerObjectData.AttackRadius, TowerObjectData.AttackRadius, 1.0));
+	MaterialPlane->SetRelativeScale3D(FVector(TowerObjectData.PlacementRadius, TowerObjectData.PlacementRadius, 1.0));
 
 	TowerObjectData.MeshBounds = MeshComp->CalcBounds(FTransform());
 
@@ -281,6 +282,7 @@ void AOneMissileTower::BeginPlay()
 	/* This is the earliest moment we can bind our delegates to the component */
 	if (PawnSensingComp)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("In Pawn Sensing Delegate Binding"));
 		PawnSensingComp->OnSeePawn.AddDynamic(this, &AOneMissileTower::OnSeenPawn);
 		PawnSensingComp->OnHearNoise.AddDynamic(this, &AOneMissileTower::OnHearNoise);
 	}
@@ -311,58 +313,67 @@ void AOneMissileTower::Tick(float DeltaTime)
 	}
 	else
 	{
-		if (TowerObjectData.CurrentTarget != nullptr)
-		{
-			//UE_LOG(LogTemp, Warning, TEXT("Looking at target!"));
+		DrawDebugSphere(
+			GetWorld(),
+			this->GetActorLocation(),
+			TowerObjectData.AttackRadius,
+			12,
+			FColor::Emerald,
+			false,
+			1.0f);
 
+		AAITowerController* AIController = Cast<AAITowerController>(GetController());
+		APawn* Target = AIController->GetTargetEnemy();
+		if (AIController && Target)
+		{
 			DrawDebugSphere(
 				GetWorld(),
-				TowerObjectData.CurrentTarget->GetActorLocation(),
+				Target->GetActorLocation(),
 				50,
 				12,
 				FColor::Emerald,
 				false,
 				1.0f);
 
-			FVector Direction = TowerObjectData.CurrentTarget->GetActorLocation() - this->GetActorLocation();
+			FVector Direction = Target->GetActorLocation() - this->GetActorLocation();
 			Direction.Normalize();
 
 			FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
 			NewLookAt.Pitch = 0.0f;
 			NewLookAt.Roll = 0.0f;
 			SetActorRotation(NewLookAt);
-			/*if (!this->TowerObjectData.Reloading)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Shoot!!"));
-				UE_LOG(LogTemp, Warning, TEXT("Fire Rate: %f"), TowerObjectData.LaserFireRate);
-				Fire();
-				GetWorldTimerManager().SetTimer(TimerHandle_FireRate, this, &ASingleLaserTower::ResetFire, 1.0f);
+			
+			
+			//
+			FVector DistanceBetVec = Target->GetActorLocation() - this->GetActorLocation();
+			float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
 
-				this->TowerObjectData.Reloading = true;
-			}*/
-
-			/* Check if the last time we sensed a player is beyond the time out value to prevent bot from endlessly following a player. */
-			if (bSensedTarget && (GetWorld()->TimeSeconds - LastSeenTime) > SenseTimeOut
-				&& (GetWorld()->TimeSeconds - LastHeardTime) > SenseTimeOut)
+			if (DistanceBetween > TowerObjectData.AttackRadius)
 			{
-				AAITowerController* AIController = Cast<AAITowerController>(GetController());
-				if (AIController)
-				{
-					bSensedTarget = false;
-					/* Reset */
-					AIController->SetTargetEnemy(nullptr);
-				}
+				bSensedTarget = false;
+				AIController->SetTargetEnemy(nullptr);
 			}
-
-			//UE_LOG(LogTemp, Warning, TEXT("Current Time is %f"), GetWorld()->GetTimerManager().GetTimerRemaining(TimerHandle_FireRate));
-
 		}
+
+		/* Check if the last time we sensed a player is beyond the time out value to prevent bot from endlessly following a player. */
+		/*if (bSensedTarget && (GetWorld()->TimeSeconds - LastSeenTime) > SenseTimeOut
+			&& (GetWorld()->TimeSeconds - LastHeardTime) > SenseTimeOut)
+		{
+			bSensedTarget = false;
+			// Reset 
+			AIController->SetTargetEnemy(nullptr);
+		}
+		*/
+
 	}
 
 }
 
 void AOneMissileTower::OnSeenPawn(APawn * Pawn)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Saw You"));
+
 	if (!bSensedTarget)
 	{
 		//BroadcastUpdateAudioLoop(true);
@@ -374,16 +385,17 @@ void AOneMissileTower::OnSeenPawn(APawn * Pawn)
 
 	AAITowerController* AIController = Cast<AAITowerController>(GetController());
 	APawn* SensedPawn = Cast<APawn>(Pawn);
-	GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("I SEE YOU"));
 
-	if (AIController)// && SensedPawn->IsAlive())
+	if (AIController && AIController->GetTargetEnemy() == nullptr)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("I SEE YOU"));
 		AIController->SetTargetEnemy(SensedPawn);
+		AIController->SetBlackboardTowerType(ETowerBehaviorType::Active);
+		AIController->SetSelfActor(this);
 	}
 
 
 	// try and fire a projectile
+	/*
 	if (ProjectileClass)
 	{
 		//FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
@@ -404,6 +416,7 @@ void AOneMissileTower::OnSeenPawn(APawn * Pawn)
 		}
 
 	}
+	*/
 }
 
 void AOneMissileTower::OnHearNoise(APawn * PawnInstigator, const FVector & Location, float Volume)
