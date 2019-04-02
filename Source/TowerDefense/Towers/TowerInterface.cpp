@@ -21,10 +21,19 @@ void ITowerInterface::SetPlaced()
 	//bool test = TowerOD->bPlaced;
 
 	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );
-	
+
 	//test = TowerOD->bPlaced;
 	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );
 	//test = true;
 	//UE_LOG(LogTemp, Warning, TEXT("In Interface: %s"), (test ? TEXT("true") : TEXT("false")) );
 
+}
+
+float ITowerInterface::TakeDamage(float Damage, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	return 0.0f;
+}
+
+void ITowerInterface::PlayHit(float DamageTaken, FDamageEvent const & DamageEvent, APawn * PawnInstigator, AActor * DamageCauser, bool bKilled)
+{
 }
