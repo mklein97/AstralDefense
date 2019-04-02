@@ -104,7 +104,7 @@ void ASingleLaserTower::BeginPlay()
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController != nullptr)
 	{
-		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
+		//Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
 	}
 	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
