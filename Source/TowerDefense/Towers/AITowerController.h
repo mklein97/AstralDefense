@@ -24,6 +24,11 @@ public:
 	
 	virtual void UnPossess() override;
 
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+
 	UBehaviorTreeComponent* BehaviorComp;
 	UBlackboardComponent* BlackboardComp;
 
@@ -39,8 +44,8 @@ public:
 
 
 public:
-	//UFUNCTION()
-	//void OnPawnDetected(const TArray<AActor*> &DetectedPawns);
+	UFUNCTION()
+	void OnPawnDetected(const TArray<AActor*> &DetectedPawns);
 
 	APawn* GetTargetEnemy();
 	
@@ -57,22 +62,22 @@ public:
 
 	FORCEINLINE UBlackboardComponent* GetBlackboardComp() const { return BlackboardComp; }
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	//float AISightRadius = 500.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AISightRadius = 1200.0f;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	//float AILoseSightRadius = AISightRadius + 50.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AILoseSightRadius = AISightRadius + 50.0f;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	//float AISightAge = 5.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AISightAge = 5.0f;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	//float AIFieldOfView = 90.0f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	float AIFieldOfView = 90.0f;
+		
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
+	class UAISenseConfig_Sight* SightConfig;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	//class UAISenseConfig_Sight* SightConfig;
+	virtual FRotator GetControlRotation() const override;
 
-	//virtual FRotator GetControlRotation() const override;
-
-	
+	TArray<AActor*> CurrentPawns;
 };

@@ -12,6 +12,23 @@
 
 AAITowerController::AAITowerController(const class FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
+	PrimaryActorTick.bCanEverTick = true;
+	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("Sight Config"));
+	SetPerceptionComponent(*CreateDefaultSubobject<UAIPerceptionComponent>(TEXT("Perception Component")));
+
+	SightConfig->SightRadius = AISightRadius;
+	SightConfig->LoseSightRadius = AILoseSightRadius;
+	SightConfig->PeripheralVisionAngleDegrees = AIFieldOfView;
+	SightConfig->SetMaxAge(AISightAge);
+
+	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
+	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
+	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+
+	GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
+	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AAITowerController::OnPawnDetected);
+	GetPerceptionComponent()->ConfigureSense(*SightConfig);
+
 	BehaviorComp = ObjectInitializer.CreateDefaultSubobject<UBehaviorTreeComponent>(this, TEXT("BehaviorComp"));
 	BlackboardComp = ObjectInitializer.CreateDefaultSubobject<UBlackboardComponent>(this, TEXT("BlackboardComp"));
 
@@ -48,6 +65,73 @@ void AAITowerController::UnPossess()
 	Super::UnPossess();
 
 	BehaviorComp->StopTree();
+}
+
+void AAITowerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (GetPerceptionComponent() != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("All Systems Set for AI Tower Controller"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("AI Tower Controller has failed"));
+	}
+}
+
+void AAITowerController::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (CurrentPawns.Num() > 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
+		for (auto& Actor : CurrentPawns)
+		{
+			APawn* EnemyPawn = Cast<APawn>(Actor);
+			UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+		}
+		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+	}
+}
+
+void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
+{
+	AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
+	if(CurrentPawns.is)
+	CurrentPawns.Add(DetectedPawns[0]);
+
+	/*
+	if (!Tower->bSensedTarget)
+	{
+		//BroadcastUpdateAudioLoop(true);
+	}
+
+	//Keep track of the time the player was last sensed in order to clear the target 
+	Tower->LastSeenTime = GetWorld()->GetTimeSeconds();
+	Tower->bSensedTarget = true;
+
+	APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
+
+	if (GetTargetEnemy() == nullptr)
+	{
+		SetTargetEnemy(SensedPawn);
+		SetBlackboardTowerType(ETowerBehaviorType::Active);
+		SetSelfActor(Tower);
+	}
+	*/
+
+	UE_LOG(LogTemp, Warning, TEXT("On Pawn Detected"));
+
+	for (auto& Actor : CurrentPawns)
+	{
+		APawn* EnemyPawn = Cast<APawn>(Actor);
+		UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+	}
+
+
 }
 
 APawn * AAITowerController::GetTargetEnemy()
@@ -92,7 +176,8 @@ void AAITowerController::SetBlackboardTowerType(ETowerBehaviorType NewType)
 	}
 }
 
-/*
+
+
 FRotator AAITowerController::GetControlRotation() const
 {
 	if (GetPawn() == nullptr)
@@ -102,5 +187,5 @@ FRotator AAITowerController::GetControlRotation() const
 
 	return FRotator(0.0f, GetPawn()->GetActorRotation().Yaw, 0.0f);
 }
-*/
+
 

@@ -313,6 +313,7 @@ void AOneMissileTower::Tick(float DeltaTime)
 	}
 	else
 	{
+		/*
 		DrawDebugSphere(
 			GetWorld(),
 			this->GetActorLocation(),
@@ -321,6 +322,7 @@ void AOneMissileTower::Tick(float DeltaTime)
 			FColor::Emerald,
 			false,
 			1.0f);
+		*/
 
 		AAITowerController* AIController = Cast<AAITowerController>(GetController());
 		APawn* Target = AIController->GetTargetEnemy();
@@ -372,7 +374,7 @@ void AOneMissileTower::Tick(float DeltaTime)
 
 void AOneMissileTower::OnSeenPawn(APawn * Pawn)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Saw You"));
+	//UE_LOG(LogTemp, Warning, TEXT("Saw You"));
 
 	if (!bSensedTarget)
 	{
