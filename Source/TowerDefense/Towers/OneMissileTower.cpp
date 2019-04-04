@@ -141,6 +141,8 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 	/* Note: Visual Setup is done in the AI/ZombieCharacter Blueprint file */
 
+	AITController = Cast<AAITowerController>(GetController());
+
 }
 
 FTowerObjectData * AOneMissileTower::GetDataStruct()
@@ -295,8 +297,9 @@ void AOneMissileTower::BeginPlay()
 		TS->bIsABot = true;
 	}
 
+	tst= this->GetController();
 
-	AITController = Cast<AAITowerController>(GetController());
+	AITController = Cast<AAITowerController>(tst);
 	
 }
 
@@ -327,7 +330,7 @@ void AOneMissileTower::Tick(float DeltaTime)
 			1.0f);
 		*/
 
-		//AIController = Cast<AAITowerController>(GetController());
+		AITController = Cast<AAITowerController>(GetController());
 		if (AITController )
 		{
 			APawn* Target = AITController->GetTargetEnemy();
