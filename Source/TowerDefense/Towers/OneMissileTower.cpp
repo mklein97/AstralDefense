@@ -294,6 +294,9 @@ void AOneMissileTower::BeginPlay()
 		TS->SetPlayerName("Tower");
 		TS->bIsABot = true;
 	}
+
+
+	AITController = Cast<AAITowerController>(GetController());
 	
 }
 
@@ -324,40 +327,43 @@ void AOneMissileTower::Tick(float DeltaTime)
 			1.0f);
 		*/
 
-		AAITowerController* AIController = Cast<AAITowerController>(GetController());
-		APawn* Target = AIController->GetTargetEnemy();
-		if (AIController && Target)
+		//AIController = Cast<AAITowerController>(GetController());
+		if (AITController )
 		{
-			DrawDebugSphere(
-				GetWorld(),
-				Target->GetActorLocation(),
-				50,
-				12,
-				FColor::Emerald,
-				false,
-				1.0f);
-
-			FVector Direction = Target->GetActorLocation() - this->GetActorLocation();
-			Direction.Normalize();
-
-			FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-			NewLookAt.Pitch = 0.0f;
-			NewLookAt.Roll = 0.0f;
-			SetActorRotation(NewLookAt);
-			
-			
-			//
-			FVector DistanceBetVec = Target->GetActorLocation() - this->GetActorLocation();
-			float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
-			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
-
-			/*
-			if (DistanceBetween > TowerObjectData.AttackRadius)
+			APawn* Target = AITController->GetTargetEnemy();
+			if (Target)
 			{
-				bSensedTarget = false;
-				AIController->SetTargetEnemy(nullptr);
+				DrawDebugSphere(
+					GetWorld(),
+					Target->GetActorLocation(),
+					50,
+					12,
+					FColor::Emerald,
+					false,
+					1.0f);
+
+				FVector Direction = Target->GetActorLocation() - this->GetActorLocation();
+				Direction.Normalize();
+
+				FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+				NewLookAt.Pitch = 0.0f;
+				NewLookAt.Roll = 0.0f;
+				SetActorRotation(NewLookAt);
+
+
+				//
+				FVector DistanceBetVec = Target->GetActorLocation() - this->GetActorLocation();
+				float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
+				//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
+
+				/*
+				if (DistanceBetween > TowerObjectData.AttackRadius)
+				{
+					bSensedTarget = false;
+					AIController->SetTargetEnemy(nullptr);
+				}
+				*/
 			}
-			*/
 		}
 
 		/* Check if the last time we sensed a player is beyond the time out value to prevent bot from endlessly following a player. */

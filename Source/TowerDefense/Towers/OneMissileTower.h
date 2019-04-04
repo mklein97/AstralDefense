@@ -13,13 +13,16 @@
 class ASingleLaserProjectile;
 class USoundCue;
 class UAudioComponent;
+class AAITowerController;
 UCLASS()
 class TOWERDEFENSE_API AOneMissileTower : public APawn, public ITowerInterface
 {
 	GENERATED_BODY()
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tower Properties")
-		FTowerObjectData TowerObjectData;
+	FTowerObjectData TowerObjectData;
+
+	AAITowerController* AITController;
 
 	/* Last time the player was spotted */
 	float LastSeenTime;
