@@ -26,13 +26,14 @@ ASingleLaserProjectile::ASingleLaserProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 5000.f;
-	ProjectileMovement->MaxSpeed = 5000.f;
-	ProjectileMovement->bRotationFollowsVelocity = true;
-	ProjectileMovement->bShouldBounce = true;
+	ProjectileMovement->InitialSpeed = 1000.f;
+	ProjectileMovement->MaxSpeed = 1000.f;
+	//ProjectileMovement->bRotationFollowsVelocity = true;
+	ProjectileMovement->ProjectileGravityScale = 0;
 
 	// Die after 3 seconds by default
 	InitialLifeSpan = 3.0f;
+	
 }
 
 // Called when the game starts or when spawned
@@ -49,15 +50,36 @@ void ASingleLaserProjectile::Tick(float DeltaTime)
 
 }
 
+void ASingleLaserProjectile::Init(APawn* targetEnemy)
+{
+	TargetEnemy = targetEnemy;
+	UE_LOG(LogTemp, Warning, TEXT("Target : %s"), *TargetEnemy->GetName());
+
+	HomingMissile(TargetEnemy);
+}
+
 void ASingleLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Hit!"));
+
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
-		OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
+		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 	}
 
 	//MakeNoise(1.0f, Instigator);
 	Destroy();
+}
+
+void ASingleLaserProjectile::HomingMissile(APawn * Target)
+{
+	TArray<UStaticMeshComponent*> StaticComps;
+	AActor* TargetActor = Cast<AActor>(Target);
+	TargetActor->GetComponents<UStaticMeshComponent>(StaticComps);
+
+	ProjectileMovement->HomingTargetComponent = StaticComps[0];
+	ProjectileMovement->bIsHomingProjectile = true;
+	ProjectileMovement->HomingAccelerationMagnitude = 20000;
 }

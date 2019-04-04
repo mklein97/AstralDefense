@@ -80,4 +80,6 @@ public:
 	virtual FRotator GetControlRotation() const override;
 
 	TArray<AActor*> CurrentPawns;
+	UStaticMeshComponent* TargetMesh;
+	bool bCheckOnce;
 };

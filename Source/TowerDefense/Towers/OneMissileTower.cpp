@@ -351,11 +351,13 @@ void AOneMissileTower::Tick(float DeltaTime)
 			float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
 			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
 
+			/*
 			if (DistanceBetween > TowerObjectData.AttackRadius)
 			{
 				bSensedTarget = false;
 				AIController->SetTargetEnemy(nullptr);
 			}
+			*/
 		}
 
 		/* Check if the last time we sensed a player is beyond the time out value to prevent bot from endlessly following a player. */
@@ -376,12 +378,13 @@ void AOneMissileTower::OnSeenPawn(APawn * Pawn)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("Saw You"));
 
+	/*
 	if (!bSensedTarget)
 	{
 		//BroadcastUpdateAudioLoop(true);
 	}
 
-	/* Keep track of the time the player was last sensed in order to clear the target */
+	// Keep track of the time the player was last sensed in order to clear the target
 	LastSeenTime = GetWorld()->GetTimeSeconds();
 	bSensedTarget = true;
 
@@ -394,7 +397,7 @@ void AOneMissileTower::OnSeenPawn(APawn * Pawn)
 		AIController->SetBlackboardTowerType(ETowerBehaviorType::Active);
 		AIController->SetSelfActor(this);
 	}
-
+	*/
 
 	// try and fire a projectile
 	/*

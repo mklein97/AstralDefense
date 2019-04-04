@@ -15,6 +15,8 @@
 #include "NavigationSystem.h"
 EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
+	UE_LOG(LogTemp, Warning, TEXT("In Fire At Target"));
+
 	AAITowerController* MyController = Cast<AAITowerController>(OwnerComp.GetAIOwner());
 	if (MyController == nullptr)
 	{
@@ -40,10 +42,17 @@ EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & O
 			//Set Spawn Collision Handling Override
 			FActorSpawnParameters ActorSpawnParams;
 			ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
+			
 			//ActorSpawnParams.Instigator = this;
 			// spawn the projectile at the muzzle
-			GetWorld()->SpawnActor<ASingleLaserProjectile>(Tower->ProjectileClass, TowerLocation, TowerRotation, ActorSpawnParams);
-		
+			auto Projectile = Cast<ASingleLaserProjectile>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), Tower->ProjectileClass, FTransform(TowerRotation, TowerLocation)));
+			//GetWorld()->SpawnActor<ASingleLaserProjectile>(Tower->ProjectileClass, TowerLocation, TowerRotation, ActorSpawnParams);
+			if (Projectile != nullptr)
+			{
+				Projectile->Init(Target);
+
+				UGameplayStatics::FinishSpawningActor(Projectile, FTransform(TowerRotation, TowerLocation));
+			}
 			// try and play the sound if specified
 			if (Tower->FireSound)
 			{

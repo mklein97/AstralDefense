@@ -56,7 +56,7 @@ void AAITowerController::Possess(APawn * Pawn)
 		}
 		UE_LOG(LogTemp, Warning, TEXT("IN CONTROLLER"));
 
-		BehaviorComp->StartTree(*TowerBot->BehaviorTree);
+		//BehaviorComp->StartTree(*TowerBot->BehaviorTree);
 	}
 }
 
@@ -87,49 +87,84 @@ void AAITowerController::Tick(float DeltaSeconds)
 
 	if (CurrentPawns.Num() > 0)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
-		for (auto& Actor : CurrentPawns)
+		if (GetTargetEnemy() == nullptr)
 		{
-			APawn* EnemyPawn = Cast<APawn>(Actor);
-			UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+			APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
+
+
+			TargetMesh->SetRenderCustomDepth(true);
+			SetTargetEnemy(SensedPawn);
+			
 		}
-		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		//UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
+		//for (auto& Actor : CurrentPawns)
+		{
+			//APawn* EnemyPawn = Cast<APawn>(Actor);
+			//UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+		}
+		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+	}
+	else if(bCheckOnce == false)
+	{
+		AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
+		Tower->bSensedTarget = false;
+		SetBlackboardTowerType(ETowerBehaviorType::Inactive);
+		bCheckOnce = true;
 	}
 }
 
 void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 {
+	//UE_LOG(LogTemp, Warning, TEXT("In Pawn Detected"));
 	AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
-	if(CurrentPawns.is)
-	CurrentPawns.Add(DetectedPawns[0]);
+	if (CurrentPawns.Find(DetectedPawns[0]) == -1)
+	{
+
+		//UE_LOG(LogTemp, Warning, TEXT("Add Pawn"));
+		bCheckOnce = false;
+		CurrentPawns.Add(DetectedPawns[0]);
+		if (!Tower->bSensedTarget)
+		{
+			//BroadcastUpdateAudioLoop(true);
+		}
+
+		//Keep track of the time the player was last sensed in order to clear the target 
+		Tower->LastSeenTime = GetWorld()->GetTimeSeconds();
+		Tower->bSensedTarget = true;
+
+
+		if (GetTargetEnemy() == nullptr)
+		{
+			APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
+			TArray<UStaticMeshComponent*> StaticComps;
+			AActor* TargetActor = Cast<AActor>(SensedPawn);
+			TargetActor->GetComponents<UStaticMeshComponent>(StaticComps);
+			TargetMesh = StaticComps[0];
+
+			TargetMesh->SetRenderCustomDepth(true);
+
+			SetTargetEnemy(SensedPawn);
+			SetBlackboardTowerType(ETowerBehaviorType::Active);
+			SetSelfActor(Tower);
+		}
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Warning, TEXT("Remove Pawn"));
+		CurrentPawns.Remove(DetectedPawns[0]);
+		TargetMesh->SetRenderCustomDepth(false);
+		SetTargetEnemy(nullptr);
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Out Pawn Detected"));
+	
 
 	/*
-	if (!Tower->bSensedTarget)
-	{
-		//BroadcastUpdateAudioLoop(true);
-	}
-
-	//Keep track of the time the player was last sensed in order to clear the target 
-	Tower->LastSeenTime = GetWorld()->GetTimeSeconds();
-	Tower->bSensedTarget = true;
-
-	APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
-
-	if (GetTargetEnemy() == nullptr)
-	{
-		SetTargetEnemy(SensedPawn);
-		SetBlackboardTowerType(ETowerBehaviorType::Active);
-		SetSelfActor(Tower);
-	}
-	*/
-
-	UE_LOG(LogTemp, Warning, TEXT("On Pawn Detected"));
-
 	for (auto& Actor : CurrentPawns)
 	{
 		APawn* EnemyPawn = Cast<APawn>(Actor);
 		UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
 	}
+	*/
 
 
 }
