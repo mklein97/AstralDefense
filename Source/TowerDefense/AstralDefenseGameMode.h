@@ -18,4 +18,12 @@ public:
 	AAstralDefenseGameMode();
 
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	void resetTimer();
+
+	FTimerHandle timer;
+private:
+	bool flag;
 };
