@@ -3,6 +3,7 @@
 #include "AstralDefensePlayerController.h"
 #include "Blueprint//AIBlueprintHelperLibrary.h"
 #include "Towers/SingleLaserTower.h"
+#include "Towers/OneMissileTower.h"
 #include "Engine/Public/EngineUtils.h"
 #include "Engine/Engine.h"
 
@@ -45,9 +46,11 @@ void AAstralDefensePlayerController::PlaceTower()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Placing Tower Name: %s"), *PlacingTower->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("|"));
-		for (TActorIterator<ASingleLaserTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		for (TActorIterator<AOneMissileTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			ASingleLaserTower *Tower = *ActorItr;
+			//ASingleLaserTower *Tower = *ActorItr;
+			AOneMissileTower *Tower = *ActorItr;
+
 			FTransform LocalToWorld = FTransform(
 				FRotator(0,0,0),
 				Tower->GetActorLocation(),
@@ -138,7 +141,13 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 	bMoveToMouseCursor = true;
 }
 
-void AAstralDefensePlayerController::SetPlacingTower(ASingleLaserTower* Tower)
+/*
+void AAstralDefensePlayerController::SetPlacingTower(ASingleLaserTower * Tower)
+{
+	this->PlacingTower = Tower;
+}*/
+
+void AAstralDefensePlayerController::SetPlacingTower(AOneMissileTower * Tower)
 {
 	this->PlacingTower = Tower;
 }
@@ -149,9 +158,11 @@ void AAstralDefensePlayerController::Tick(float DeltaTime)
 
 	if (PlacingTower && PlacingTower->TowerObjectData.bPlacing)
 	{
-		for (TActorIterator<ASingleLaserTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		for (TActorIterator<AOneMissileTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
-			ASingleLaserTower *Tower = *ActorItr;
+			//ASingleLaserTower *Tower = *ActorItr;
+			AOneMissileTower *Tower = *ActorItr;
+
 			FTransform LocalToWorld = FTransform(
 				FRotator(0, 0, 0),
 				Tower->GetActorLocation(),
@@ -160,26 +171,7 @@ void AAstralDefensePlayerController::Tick(float DeltaTime)
 
 			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
 
-			if (Tower == PlacingTower)
-			{
-				//UE_LOG(LogTemp, Warning, TEXT("Placing Tower Name: %s"), *Tower->GetName());
-				//Tower->SetPlaced();
-			}
-			else
-			{
-				ITowerInterface* Actor2Interface = Cast<ITowerInterface>(Tower);
-				if (Actor2Interface )
-				{
-					if (PlacingTower->IsCollidingWith(*Actor2Interface))
-					{
-						//UE_LOG(LogTemp, Warning, TEXT("COLLIDING!"));
-					}
-
-				}
-				
-				//Tower->SetPlaced();
-				//UE_LOG(LogTemp, Warning, TEXT("NonPlacing Tower Name: %s"), *Tower->GetName());
-			}
+			
 			//ClientMessage(ActorItr->GetName());
 			//ClientMessage(ActorItr->GetActorLocation().ToString());
 		}

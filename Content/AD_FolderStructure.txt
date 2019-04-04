@@ -1,0 +1,72 @@
+Assets
+	Character
+		Animations
+		Meshes
+		Textures
+		Materials
+			MaterialLayers
+	Base
+		Animations
+		Meshes
+		Textures
+		Materials
+			MaterialLayers
+	Tower
+		OneMissileTower
+			Animations
+			Meshes
+			Textures
+			Materials
+				MaterialLayers
+		EctoplasmCannon
+			Animations
+			Meshes
+			Textures
+			Materials
+				MaterialLayers
+	etc...
+Audio
+	etc..
+Blueprints
+	Allies
+		BP_AllyOne
+		BP_AllyTwo
+		BP_etc...
+		AI
+			BP_AIAllyController
+	Enemies
+		BP_EnemyOne
+		BP_EnemyTwo
+		BP_etc...
+		AI
+			BP_AIEnemyController
+	Projectiles
+		BP_MissileProjectile
+		BP_etc...
+	Towers
+		BP_OneMissileTower
+		BP_EctoplasmCannon
+		BP_etc...
+		AI
+			BP_AITowerController
+Geometry
+	etc...
+Maps
+	TutorialMap
+	FirstLevelMap
+	etc..
+Particles
+	etc..
+Props
+	Platform.mesh
+	Asteroid.mesh
+	etc..
+StarterContent
+	etc..
+UI
+	MainMenu
+		BP_MainMenu_Settings
+		BP_MainMenu_UI
+	InGame
+		BP_InGame_Menu_UI
+	etc..

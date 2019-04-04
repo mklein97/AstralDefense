@@ -12,33 +12,48 @@
 #include "../Decals/AstralDefenseDecalComponent.h"
 #include "SingleLaserTower.generated.h"
 
+class ASingleLaserProjectile;
+class USoundBase;
 UCLASS()
 class TOWERDEFENSE_API ASingleLaserTower : public AActor, public ITowerInterface
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ASingleLaserTower();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tower Properties")
-	FTowerObjectData TowerObjectData;
+		FTowerObjectData TowerObjectData;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UStaticMeshComponent* MeshComp;
+		UStaticMeshComponent* MeshComp;
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//UAstralDefenseDecalComponent* UnableDecalComp;
+
+
+	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	//UAstralDefenseDecalComponent* AttackRadiusDecalComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UAstralDefenseDecalComponent* UnableDecalComp;
+	UStaticMeshComponent* MaterialPlane;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	UAstralDefenseDecalComponent* AttackRadiusDecalComp;
-
-	
+		USphereComponent* CollisionComp;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	USphereComponent* CollisionComp;
+		USphereComponent* AttackRadiusComp;
+
+	/** Projectile class to spawn */
+	UPROPERTY(EditDefaultsOnly, Category = "Projectile")
+		TSubclassOf<ASingleLaserProjectile> ProjectileClass;
+
+	/** Sound to play each time we fire */
+	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
+		USoundBase* FireSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float testfloat;
+		float testfloat;
 
 	APlayerController* PlayerController;
 	FVector MouseLocation;
@@ -48,6 +63,11 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UMaterialInstance* PlacementMat;
+	UMaterialInstance* UnableMat;
+	UMaterialInstance* AttackRadMat;
+
+
 public:	
 	FTowerObjectData* GetDataStruct();
 
@@ -56,10 +76,24 @@ public:
 	void DisableAttackRadiusDecal();
 
 	UFUNCTION()
-	void OnCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
+		void OnCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
 
 	UFUNCTION()
-	void OffCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+		void OffCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+		void OnSeen(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
+
+	UFUNCTION()
+		void OffSeen(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	/** Fires a Laser Projectile */
+	UFUNCTION()
+		void ResetFire();
+
+	void Fire();
+
+	FTimerHandle TimerHandle_FireRate;
 
 	bool IsCollidingWith(ITowerInterface &otherActor);
 

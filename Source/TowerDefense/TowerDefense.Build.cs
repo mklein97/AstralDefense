@@ -6,11 +6,13 @@ public class TowerDefense : ModuleRules
 {
 	public TowerDefense(ReadOnlyTargetRules Target) : base(Target)
 	{
-	    MinFilesUsingPrecompiledHeaderOverride = 1;
-	    bFasterWithoutUnity = true;
 
-        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+        MinFilesUsingPrecompiledHeaderOverride = 1;
+        bFasterWithoutUnity = true;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "NavigationSystem", "AIModule" });
+		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
+
+
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "HeadMountedDisplay", "NavigationSystem", "AIModule", "GameplayTasks" });
     }
 }
