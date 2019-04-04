@@ -6,7 +6,8 @@
 #include "GameFramework/PlayerController.h"
 #include "AstralDefensePlayerController.generated.h"
 
-class ASingleLaserTower;
+class AOneMissileTower;
+//class ASingleLaserTower;
 /**
  * 
  */
@@ -17,7 +18,8 @@ class TOWERDEFENSE_API AAstralDefensePlayerController : public APlayerController
 	
 public:
 	AAstralDefensePlayerController();
-	void SetPlacingTower(ASingleLaserTower* Tower);
+	void SetPlacingTower(AOneMissileTower* Tower);
+	//void SetPlacingTower(ASingleLaserTower* Tower);
 
 	virtual void Tick(float DeltaTime) override;
 
@@ -40,8 +42,10 @@ protected:
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
 
-	ASingleLaserTower* PlacingTower;
-	
+
+	AOneMissileTower* PlacingTower;
+	//ASingleLaserTower* PlacingTower;
+
 
 
 	void PlaceTower();

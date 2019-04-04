@@ -59,7 +59,8 @@ struct FTowerObjectData
 	/************************************************************************/
 
 	UPROPERTY(EditDefaultsOnly, Category = "PlayerCondition")
-		float Health;
+	float Health;
+
 
 	/* Holds hit data to replicate hits and death to clients */
 	UPROPERTY(EditAnywhere)
@@ -81,8 +82,6 @@ class TOWERDEFENSE_API ITowerInterface
 
 		// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-
-
 
 	virtual FTowerObjectData* GetDataStruct() = 0;
 
