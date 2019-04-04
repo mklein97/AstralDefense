@@ -8,6 +8,8 @@ APlayerBase::APlayerBase()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	Health = 100;
+	Money = 100;
+	Kills = 0;
 	PitchValue = 0.f;
 	YawValue = 0.f;
 	RollValue = 0.f;
