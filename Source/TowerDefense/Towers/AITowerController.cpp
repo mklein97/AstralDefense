@@ -24,6 +24,7 @@ AAITowerController::AAITowerController(const class FObjectInitializer& ObjectIni
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	
 
 	GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AAITowerController::OnPawnDetected);
@@ -56,7 +57,7 @@ void AAITowerController::Possess(APawn * Pawn)
 		}
 		UE_LOG(LogTemp, Warning, TEXT("IN CONTROLLER"));
 
-		//BehaviorComp->StartTree(*TowerBot->BehaviorTree);
+		BehaviorComp->StartTree(*TowerBot->BehaviorTree);
 	}
 }
 
@@ -103,6 +104,7 @@ void AAITowerController::Tick(float DeltaSeconds)
 			//UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
 		}
 		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
 	}
 	else if(bCheckOnce == false)
 	{
@@ -117,7 +119,8 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("In Pawn Detected"));
 	AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
-	if (CurrentPawns.Find(DetectedPawns[0]) == -1)
+	FString Label = DetectedPawns[0]->GetActorLabel();
+	if (Label == "Enemy" && Tower->TowerObjectData.bPlaced && CurrentPawns.Find(DetectedPawns[0]) == -1)
 	{
 
 		//UE_LOG(LogTemp, Warning, TEXT("Add Pawn"));
@@ -148,7 +151,7 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 			SetSelfActor(Tower);
 		}
 	}
-	else
+	else if(Label == "Enemy" && Tower->TowerObjectData.bPlaced)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Remove Pawn"));
 		CurrentPawns.Remove(DetectedPawns[0]);
@@ -171,7 +174,7 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 
 APawn * AAITowerController::GetTargetEnemy()
 {
-	if (Blackboard)
+	if (BlackboardComp)
 	{
 		return Cast<APawn>(BlackboardComp->GetValueAsObject(TargetEnemyKeyName));
 	}
@@ -180,7 +183,7 @@ APawn * AAITowerController::GetTargetEnemy()
 
 AOneMissileTower * AAITowerController::GetSelfActor()
 {
-	if (Blackboard)
+	if (BlackboardComp)
 	{
 		return Cast<AOneMissileTower>(BlackboardComp->GetValueAsObject(SelfActorKeyName));
 	}

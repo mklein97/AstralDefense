@@ -23,7 +23,7 @@ public:
 	FTowerObjectData TowerObjectData;
 
 	AAITowerController* AITController;
-	AController* tst;
+	APawn* Target;
 
 	/* Last time the player was spotted */
 	float LastSeenTime;

@@ -142,6 +142,7 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 	/* Note: Visual Setup is done in the AI/ZombieCharacter Blueprint file */
 
 	AITController = Cast<AAITowerController>(GetController());
+	Target = nullptr;
 
 }
 
@@ -155,9 +156,9 @@ void AOneMissileTower::SetPlaced()
 	ITowerInterface::SetPlaced();
 	TowerObjectData.ActorLocation = this->GetActorLocation();
 	TowerObjectData.CollisionBounds = CollisionComp->CalcBounds(FTransform(
-			FRotator(0, 0, 0),
-			FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
-			FVector(1, 1, 1)));
+		FRotator(0, 0, 0),
+		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
+		FVector(1, 1, 1)));
 	DisableAttackRadiusDecal();
 }
 
@@ -297,10 +298,9 @@ void AOneMissileTower::BeginPlay()
 		TS->bIsABot = true;
 	}
 
-	tst= this->GetController();
 
-	AITController = Cast<AAITowerController>(tst);
-	
+	AITController = Cast<AAITowerController>(this->GetController());
+	Target = nullptr;
 }
 
 // Called every frame
@@ -331,50 +331,50 @@ void AOneMissileTower::Tick(float DeltaTime)
 		*/
 
 		AITController = Cast<AAITowerController>(GetController());
-		if (AITController )
+		Target = AITController->GetTargetEnemy();
+		if (AITController && Target)
 		{
-			APawn* Target = AITController->GetTargetEnemy();
-			if (Target)
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
+
+			DrawDebugSphere(
+				GetWorld(),
+				Target->GetActorLocation(),
+				50,
+				12,
+				FColor::Emerald,
+				false,
+				1.0f);
+
+			FVector Direction = Target->GetActorLocation() - this->GetActorLocation();
+			Direction.Normalize();
+
+			FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+			NewLookAt.Pitch = 0.0f;
+			NewLookAt.Roll = 0.0f;
+			SetActorRotation(NewLookAt);
+
+
+			//
+			FVector DistanceBetVec = Target->GetActorLocation() - this->GetActorLocation();
+			float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
+
+			/*
+			if (DistanceBetween > TowerObjectData.AttackRadius)
 			{
-				DrawDebugSphere(
-					GetWorld(),
-					Target->GetActorLocation(),
-					50,
-					12,
-					FColor::Emerald,
-					false,
-					1.0f);
-
-				FVector Direction = Target->GetActorLocation() - this->GetActorLocation();
-				Direction.Normalize();
-
-				FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-				NewLookAt.Pitch = 0.0f;
-				NewLookAt.Roll = 0.0f;
-				SetActorRotation(NewLookAt);
-
-
-				//
-				FVector DistanceBetVec = Target->GetActorLocation() - this->GetActorLocation();
-				float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
-				//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
-
-				/*
-				if (DistanceBetween > TowerObjectData.AttackRadius)
-				{
-					bSensedTarget = false;
-					AIController->SetTargetEnemy(nullptr);
-				}
-				*/
+				bSensedTarget = false;
+				AIController->SetTargetEnemy(nullptr);
 			}
+			*/
 		}
+
 
 		/* Check if the last time we sensed a player is beyond the time out value to prevent bot from endlessly following a player. */
 		/*if (bSensedTarget && (GetWorld()->TimeSeconds - LastSeenTime) > SenseTimeOut
 			&& (GetWorld()->TimeSeconds - LastHeardTime) > SenseTimeOut)
 		{
 			bSensedTarget = false;
-			// Reset 
+			// Reset
 			AIController->SetTargetEnemy(nullptr);
 		}
 		*/

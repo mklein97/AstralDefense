@@ -72,7 +72,7 @@ public:
 	float AISightAge = 5.0f;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
-	float AIFieldOfView = 90.0f;
+	float AIFieldOfView = 180.0f;
 		
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = AI)
 	class UAISenseConfig_Sight* SightConfig;
