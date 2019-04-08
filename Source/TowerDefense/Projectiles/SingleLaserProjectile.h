@@ -17,6 +17,7 @@ public:
 	// Sets default values for this actor's properties
 	ASingleLaserProjectile();
 
+	
 	protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -38,8 +39,12 @@ public:
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
+	void Init(APawn* targetEnemy);
+	
+	APawn* TargetEnemy;
 	/** called when projectile hits something */
 	UFUNCTION()
 	void OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
 
+	void HomingMissile(APawn* Target);
 };

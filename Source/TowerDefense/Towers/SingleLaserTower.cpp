@@ -104,12 +104,14 @@ void ASingleLaserTower::BeginPlay()
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController != nullptr)
 	{
-		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
+		//Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
 	}
 	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
 	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
+
 	MaterialPlane->SetRelativeScale3D(FVector(TowerObjectData.AttackRadius, TowerObjectData.AttackRadius, 1.0));
+
 
 	//TowerObjectData.DecalBounds = AttackRadiusDecalComp->CalcBounds(FTransform());//AttackRadiusDecalComp->GetRelativeTransform());
 

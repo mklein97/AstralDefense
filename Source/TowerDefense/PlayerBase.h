@@ -19,6 +19,12 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 		int32 Health;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int32 Money;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+		int32 Kills;
+
 	UPROPERTY(EditAnywhere, Category = Movement)
 		float PitchValue;
 

@@ -32,11 +32,12 @@ public:
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	//UAstralDefenseDecalComponent* UnableDecalComp;
 
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	//UAstralDefenseDecalComponent* AttackRadiusDecalComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-		UStaticMeshComponent* MaterialPlane;
+	UStaticMeshComponent* MaterialPlane;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		USphereComponent* CollisionComp;
@@ -66,7 +67,8 @@ protected:
 	UMaterialInstance* UnableMat;
 	UMaterialInstance* AttackRadMat;
 
-public:
+
+public:	
 	FTowerObjectData* GetDataStruct();
 
 	//bool IsPlacing();
