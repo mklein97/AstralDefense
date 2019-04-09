@@ -28,16 +28,9 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 	Because the zombie AIController is a blueprint in content and it's better to avoid content references in code.  */
 	/*AIControllerClass = ASZombieAIController::StaticClass();*/
 
-	TowerObjectData.AttackRadius = 1200;
-	TowerObjectData.PlacementRadius = 25;
+	TowerObjectData.AttackRadius = TowerObjectData.PlacementRadius* 50;
+	TowerObjectData.PlacementRadius = 24;
 
-	/* Our sensing component to detect players by visibility and noise checks. */
-	PawnSensingComp = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("PawnSensingComp"));
-	PawnSensingComp->SetPeripheralVisionAngle(90.0f);
-	PawnSensingComp->SightRadius = TowerObjectData.AttackRadius;
-	PawnSensingComp->HearingThreshold = 600;
-	PawnSensingComp->LOSHearingThreshold = 1200;
-	PawnSensingComp->bOnlySensePlayers = false;
 
 	/* These values are matched up to the CapsuleComponent above and are used to find navigation paths */
 	//GetMovementComponent()->NavAgentProps.AgentRadius = 42;
@@ -57,6 +50,8 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 	MaterialPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Plane Material"));
 	MaterialPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MaterialPlane->SetRelativeLocation(FVector(0, 0, 1));
+
 	//TowerObjectData.MeshComp->bEditableWhenInherited = true;
 	//TowerObjectData.AttackRadiusDecalComp->bEditableWhenInherited = true;
 
@@ -136,12 +131,14 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 	//SprintingSpeedModifier = 3.0f;
 
 	/* By default we will not let the AI patrol, we can override this value per-instance. */
-	TowerType = ETowerBehaviorType::Inactive;
-	SenseTimeOut = 2.5f;
+	TowerObjectData.TowerType = ETowerBehaviorType::Inactive;
+	TowerObjectData.SenseTimeOut = 2.5f;
 
 	/* Note: Visual Setup is done in the AI/ZombieCharacter Blueprint file */
 
-	AITController = Cast<AAITowerController>(GetController());
+	TowerObjectData.AITController = Cast<AAITowerController>(GetController());
+	TowerObjectData.CurrentTarget = nullptr;
+	this->SetActorEnableCollision(false);
 
 }
 
@@ -155,16 +152,32 @@ void AOneMissileTower::SetPlaced()
 	ITowerInterface::SetPlaced();
 	TowerObjectData.ActorLocation = this->GetActorLocation();
 	TowerObjectData.CollisionBounds = CollisionComp->CalcBounds(FTransform(
-			FRotator(0, 0, 0),
-			FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
-			FVector(1, 1, 1)));
+		FRotator(0, 0, 0),
+		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
+		FVector(1, 1, 1)));
 	DisableAttackRadiusDecal();
+	this->SetActorEnableCollision(true);
+}
+
+void AOneMissileTower::SetSelected()
+{
+	EnableAttackRadiusDecal();
+	TowerObjectData.AttackRadMatInst = UMaterialInstanceDynamic::Create(AttackRadMat, this);
+	TowerObjectData.bSelected = true;
+
+	MaterialPlane->SetMaterial(0, TowerObjectData.AttackRadMatInst);
 }
 
 void AOneMissileTower::DisableAttackRadiusDecal()
 {
 	MaterialPlane->SetHiddenInGame(true);
 }
+
+void AOneMissileTower::EnableAttackRadiusDecal()
+{
+	MaterialPlane->SetHiddenInGame(false);
+}
+
 
 bool AOneMissileTower::IsCollidingWith(ITowerInterface & otherActor)
 {
@@ -180,7 +193,7 @@ void AOneMissileTower::OnCollision(UPrimitiveComponent * HitComp, AActor * Other
 		if ((OtherActor != NULL))// && (OtherActor != this) && (OtherComp != NULL))
 		{
 			//ASingleLaserTower * OtherTower = Cast<ASingleLaserTower>(OtherActor);
-			MaterialPlane->SetHiddenInGame(false);
+			EnableAttackRadiusDecal();
 			TowerObjectData.UnableMatInst = UMaterialInstanceDynamic::Create(UnableMat, this);
 
 			MaterialPlane->SetMaterial(0, TowerObjectData.UnableMatInst);
@@ -199,7 +212,7 @@ void AOneMissileTower::OffCollision(UPrimitiveComponent * OverlappedComponent, A
 {
 	if (this->TowerObjectData.bPlacing)
 	{
-		MaterialPlane->SetHiddenInGame(false);
+		EnableAttackRadiusDecal();
 		TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
 		MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
@@ -215,13 +228,8 @@ void AOneMissileTower::OffCollision(UPrimitiveComponent * OverlappedComponent, A
 
 void AOneMissileTower::SetTowerType(ETowerBehaviorType NewType)
 {
-	TowerType = NewType;
-	AAITowerController* AIController = Cast<AAITowerController>(GetController());
-	if (AIController)
-	{
-		AIController->SetBlackboardTowerType(NewType);
-	}
-
+	ITowerInterface::SetTowerType(NewType);
+	
 	//BroadcastUpdateAudio(bSensedTarget);
 }
 
@@ -230,8 +238,6 @@ void AOneMissileTower::SetTowerType(ETowerBehaviorType NewType)
 void AOneMissileTower::BeginPlay()
 {
 	Super::BeginPlay();
-
-	PawnSensingComp->SightRadius = TowerObjectData.AttackRadius;
 
 	PlayerController = GetWorld()->GetFirstPlayerController();
 	if (PlayerController != nullptr)
@@ -242,6 +248,7 @@ void AOneMissileTower::BeginPlay()
 
 	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
 	MaterialPlane->SetRelativeScale3D(FVector(TowerObjectData.PlacementRadius, TowerObjectData.PlacementRadius, 1.0));
+	MaterialPlane->SetRelativeLocation(FVector(0, 0, 1));
 
 	TowerObjectData.MeshBounds = MeshComp->CalcBounds(FTransform());
 
@@ -281,13 +288,6 @@ void AOneMissileTower::BeginPlay()
 	TowerObjectData.Reloading = false;
 
 	//////////////////////////////////
-	/* This is the earliest moment we can bind our delegates to the component */
-	if (PawnSensingComp)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("In Pawn Sensing Delegate Binding"));
-		PawnSensingComp->OnSeePawn.AddDynamic(this, &AOneMissileTower::OnSeenPawn);
-		PawnSensingComp->OnHearNoise.AddDynamic(this, &AOneMissileTower::OnHearNoise);
-	}
 
 	/* Assign a basic name to identify the bots in the HUD. */
 	ASTowerState* TS = Cast<ASTowerState>(GetPlayerState());
@@ -297,10 +297,12 @@ void AOneMissileTower::BeginPlay()
 		TS->bIsABot = true;
 	}
 
-	tst= this->GetController();
 
-	AITController = Cast<AAITowerController>(tst);
-	
+	TowerObjectData.AITController = Cast<AAITowerController>(this->GetController());
+	TowerObjectData.CurrentTarget = nullptr;
+
+	this->SetActorEnableCollision(false);
+
 }
 
 // Called every frame
@@ -310,6 +312,7 @@ void AOneMissileTower::Tick(float DeltaTime)
 
 	if (!TowerObjectData.bPlaced)
 	{
+		//APlayerController* Test = GetWorld()->GetFirstPlayerController();
 		FHitResult TraceHitResult;
 		PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
 		FVector CursorFV = TraceHitResult.ImpactNormal;
@@ -329,52 +332,58 @@ void AOneMissileTower::Tick(float DeltaTime)
 			false,
 			1.0f);
 		*/
-
-		AITController = Cast<AAITowerController>(GetController());
-		if (AITController )
+		if (!TowerObjectData.bSelected)
 		{
-			APawn* Target = AITController->GetTargetEnemy();
-			if (Target)
-			{
-				DrawDebugSphere(
-					GetWorld(),
-					Target->GetActorLocation(),
-					50,
-					12,
-					FColor::Emerald,
-					false,
-					1.0f);
-
-				FVector Direction = Target->GetActorLocation() - this->GetActorLocation();
-				Direction.Normalize();
-
-				FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
-				NewLookAt.Pitch = 0.0f;
-				NewLookAt.Roll = 0.0f;
-				SetActorRotation(NewLookAt);
-
-
-				//
-				FVector DistanceBetVec = Target->GetActorLocation() - this->GetActorLocation();
-				float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
-				//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
-
-				/*
-				if (DistanceBetween > TowerObjectData.AttackRadius)
-				{
-					bSensedTarget = false;
-					AIController->SetTargetEnemy(nullptr);
-				}
-				*/
-			}
+			DisableAttackRadiusDecal();
 		}
+
+		TowerObjectData.AITController = Cast<AAITowerController>(GetController());
+		TowerObjectData.CurrentTarget = TowerObjectData.AITController->GetTargetEnemy();
+		if (TowerObjectData.AITController && TowerObjectData.CurrentTarget)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
+
+			/*
+			DrawDebugSphere(
+				GetWorld(),
+				TowerObjectData.CurrentTarget->GetActorLocation(),
+				50,
+				12,
+				FColor::Emerald,
+				false,
+				1.0f);
+				*/
+
+			FVector Direction = TowerObjectData.CurrentTarget->GetActorLocation() - this->GetActorLocation();
+			Direction.Normalize();
+
+			FRotator NewLookAt = FRotationMatrix::MakeFromX(Direction).Rotator();
+			NewLookAt.Pitch = 0.0f;
+			NewLookAt.Roll = 0.0f;
+			SetActorRotation(NewLookAt);
+
+
+			//
+			FVector DistanceBetVec = TowerObjectData.CurrentTarget->GetActorLocation() - this->GetActorLocation();
+			float DistanceBetween = FMath::Abs(DistanceBetVec.Size());
+			//UE_LOG(LogTemp, Warning, TEXT("%f"), DistanceBetween);
+
+			/*
+			if (DistanceBetween > TowerObjectData.AttackRadius)
+			{
+				bSensedTarget = false;
+				AIController->SetTargetEnemy(nullptr);
+			}
+			*/
+		}
+
 
 		/* Check if the last time we sensed a player is beyond the time out value to prevent bot from endlessly following a player. */
 		/*if (bSensedTarget && (GetWorld()->TimeSeconds - LastSeenTime) > SenseTimeOut
 			&& (GetWorld()->TimeSeconds - LastHeardTime) > SenseTimeOut)
 		{
 			bSensedTarget = false;
-			// Reset 
+			// Reset
 			AIController->SetTargetEnemy(nullptr);
 		}
 		*/
@@ -383,59 +392,6 @@ void AOneMissileTower::Tick(float DeltaTime)
 
 }
 
-void AOneMissileTower::OnSeenPawn(APawn * Pawn)
-{
-	//UE_LOG(LogTemp, Warning, TEXT("Saw You"));
-
-	/*
-	if (!bSensedTarget)
-	{
-		//BroadcastUpdateAudioLoop(true);
-	}
-
-	// Keep track of the time the player was last sensed in order to clear the target
-	LastSeenTime = GetWorld()->GetTimeSeconds();
-	bSensedTarget = true;
-
-	AAITowerController* AIController = Cast<AAITowerController>(GetController());
-	APawn* SensedPawn = Cast<APawn>(Pawn);
-
-	if (AIController && AIController->GetTargetEnemy() == nullptr)
-	{
-		AIController->SetTargetEnemy(SensedPawn);
-		AIController->SetBlackboardTowerType(ETowerBehaviorType::Active);
-		AIController->SetSelfActor(this);
-	}
-	*/
-
-	// try and fire a projectile
-	/*
-	if (ProjectileClass)
-	{
-		//FVector MuzzleLocation = GunMeshComponent->GetSocketLocation("Muzzle");
-		//FRotator MuzzleRotation = GunMeshComponent->GetSocketRotation("Muzzle");
-		FRotator TowerRotation = GetActorRotation();
-		FVector TowerLocation = GetActorLocation() + TowerRotation.Vector().Normalize() * 100;
-		//Set Spawn Collision Handling Override
-		FActorSpawnParameters ActorSpawnParams;
-		ActorSpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButDontSpawnIfColliding;
-		//ActorSpawnParams.Instigator = this;
-		// spawn the projectile at the muzzle
-		GetWorld()->SpawnActor<ASingleLaserProjectile>(ProjectileClass, TowerLocation, TowerRotation, ActorSpawnParams);
-
-		// try and play the sound if specified
-		if (FireSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
-		}
-
-	}
-	*/
-}
-
-void AOneMissileTower::OnHearNoise(APawn * PawnInstigator, const FVector & Location, float Volume)
-{
-}
 
 UAudioComponent * AOneMissileTower::PlayCharacterSound(USoundCue * CueToPlay)
 {
