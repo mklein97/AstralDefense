@@ -37,3 +37,14 @@ float ITowerInterface::TakeDamage(float Damage, FDamageEvent const & DamageEvent
 void ITowerInterface::PlayHit(float DamageTaken, FDamageEvent const & DamageEvent, APawn * PawnInstigator, AActor * DamageCauser, bool bKilled)
 {
 }
+
+void ITowerInterface::SetTowerType(ETowerBehaviorType NewType)
+{
+	FTowerObjectData* TowerOD = GetDataStruct();
+	TowerOD->TowerType = NewType;
+	if (TowerOD->AITController)
+	{
+		TowerOD->AITController->SetBlackboardTowerType(NewType);
+	}
+
+}
