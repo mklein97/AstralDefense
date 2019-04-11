@@ -290,6 +290,11 @@ void AInLineTower::SetPlaced()
 	this->SetActorEnableCollision(true);
 }
 
+int32 AInLineTower::TowerCost(int32 CurrentStarbucks)
+{
+	return ITowerInterface::TowerCost(CurrentStarbucks);
+}
+
 void AInLineTower::SetSelected()
 {
 	EnableAttackRadiusDecal();

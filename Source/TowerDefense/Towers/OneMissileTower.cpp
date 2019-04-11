@@ -122,7 +122,7 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 	RootComponent = MeshComp;
 
-	TowerObjectData.Cost = 50;
+	TowerObjectData.Cost = 20;
 
 
 	//Health = 100;
@@ -157,6 +157,11 @@ void AOneMissileTower::SetPlaced()
 		FVector(1, 1, 1)));
 	DisableAttackRadiusDecal();
 	this->SetActorEnableCollision(true);
+}
+
+int32 AOneMissileTower::TowerCost(int32 CurrentStarbucks)
+{
+	return ITowerInterface::TowerCost(CurrentStarbucks);
 }
 
 void AOneMissileTower::SetSelected()
