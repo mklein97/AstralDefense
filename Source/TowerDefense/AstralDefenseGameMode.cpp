@@ -53,6 +53,7 @@ void AAstralDefenseGameMode::Tick(float DeltaSeconds)
 				}
 			}
 		}
+		break;
 	}
 }
 

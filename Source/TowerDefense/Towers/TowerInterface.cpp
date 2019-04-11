@@ -49,8 +49,11 @@ void ITowerInterface::SetTowerType(ETowerBehaviorType NewType)
 
 }
 
-float ITowerInterface::TowerCost(float CurrentStarbucks)
+int32 ITowerInterface::TowerCost(int32 CurrentStarbucks)
 {
+
 	FTowerObjectData* TowerOD = GetDataStruct();
+	UE_LOG(LogTemp, Warning, TEXT("Tower Cost: %d"), TowerOD->Cost);
+
 	return CurrentStarbucks - TowerOD->Cost;
 }

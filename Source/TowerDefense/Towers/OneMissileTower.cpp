@@ -159,7 +159,7 @@ void AOneMissileTower::SetPlaced()
 	this->SetActorEnableCollision(true);
 }
 
-float AOneMissileTower::TowerCost(float CurrentStarbucks)
+int32 AOneMissileTower::TowerCost(int32 CurrentStarbucks)
 {
 	return ITowerInterface::TowerCost(CurrentStarbucks);
 }

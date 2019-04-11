@@ -44,8 +44,8 @@ protected:
 
 	TSubclassOf<class APlayerBase> Base;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		TArray < FTowerSearch >  Towers;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		//TArray < FTowerSearch >  Towers;
 
 	//UFUNCTION(BlueprintCallable)
 		//AAstralDefensePlayerController* get();

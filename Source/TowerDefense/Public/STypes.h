@@ -13,6 +13,7 @@ enum class ETowerBehaviorType : uint8
 	Active
 };
 
+/*
 USTRUCT()
 struct FTowerSearch
 {
@@ -24,7 +25,7 @@ struct FTowerSearch
 	UPROPERTY()
 	bool bplaced;
 };
-
+*/
 USTRUCT()
 struct FTakeHitInfo
 {

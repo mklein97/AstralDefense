@@ -26,7 +26,7 @@ struct FTowerObjectData
 
 	bool Reloading;
 
-	int Cost;
+	int32 Cost;
 	int Kills;
 
 	bool bPlaced = false;
@@ -130,8 +130,8 @@ public:
 	/* Change default bot type during gameplay */
 	virtual void SetTowerType(ETowerBehaviorType NewType) = 0;
 	virtual void SetSelected() = 0;
-	UFUNCTION(BlueprintCallable)
-	virtual float TowerCost(float CurrentStarbucks) = 0;
+	//UFUNCTION(BlueprintCallable)
+	virtual int32 TowerCost(int32 CurrentStarbucks) = 0;
 	virtual void DisableAttackRadiusDecal() = 0;
 	virtual void EnableAttackRadiusDecal() = 0;
 

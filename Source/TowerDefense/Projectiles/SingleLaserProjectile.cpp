@@ -81,10 +81,12 @@ void ASingleLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 		3.0f);
 		*/
 	//MakeNoise(1.0f, Instigator);
+	/*
 	if (OtherActor == TargetEnemy)
 	{
 		Destroy();
 	}
+	*/
 }
 
 void ASingleLaserProjectile::HomingMissile(APawn * Target)

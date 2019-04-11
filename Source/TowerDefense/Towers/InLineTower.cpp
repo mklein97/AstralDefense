@@ -290,7 +290,7 @@ void AInLineTower::SetPlaced()
 	this->SetActorEnableCollision(true);
 }
 
-float AInLineTower::TowerCost(float CurrentStarbucks)
+int32 AInLineTower::TowerCost(int32 CurrentStarbucks)
 {
 	return ITowerInterface::TowerCost(CurrentStarbucks);
 }

@@ -7,6 +7,7 @@
 #include "Engine/Public/EngineUtils.h"
 #include "Engine/Engine.h"
 #include "Engine/Blueprint.h"
+#include "../PlayerBase.h"
 
 AAstralDefensePlayerController::AAstralDefensePlayerController()
 {
@@ -52,10 +53,10 @@ void AAstralDefensePlayerController::PlaceTower()
 	
 	if (PlacingTower)
 	{
-		FTowerSearch Tower2Array;
-		Tower2Array.ITower = PlacingTower;
-		Tower2Array.bplaced = false;
-		Towers->Add(Tower2Array);
+		//FTowerSearch Tower2Array;
+		//Tower2Array.ITower = PlacingTower;
+		//Tower2Array.bplaced = false;
+		//Towers->Add(Tower2Array);
 
 		//UE_LOG(LogTemp, Warning, TEXT("Placing Tower Name: %s"), *PlacingTower->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("|"));
@@ -84,7 +85,26 @@ void AAstralDefensePlayerController::PlaceTower()
 						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
 						Tower->SetPlaced();
-						Tower2Array.bplaced = true;
+						///
+						UE_LOG(LogTemp, Warning, TEXT("Start Looking for Base"));
+						for (TActorIterator<APlayerBase> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Looking for Base"));
+
+							// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+							APlayerBase* player = *ActorItr;
+							if (player != nullptr)
+							{
+								UE_LOG(LogTemp, Warning, TEXT("Base Money: %d"), player->Money);
+								player->Money -= 20;// Tower->TowerCost(player->Money);
+								UE_LOG(LogTemp, Warning, TEXT("Base Money: %d"), player->Money);
+
+							}
+							break;
+						}
+						///
+
+						//Tower2Array.bplaced = true;
 						PlacingTower = nullptr;
 					}
 					else
@@ -123,6 +143,25 @@ void AAstralDefensePlayerController::PlaceTower()
 						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
 						Tower->SetPlaced();
+
+						///
+						UE_LOG(LogTemp, Warning, TEXT("Start Looking for Base"));
+						for (TActorIterator<APlayerBase> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Looking for Base"));
+
+							// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+							APlayerBase* player = *ActorItr;
+							if (player != nullptr)
+							{
+								player->Money = Tower->TowerCost(player->Money);
+								UE_LOG(LogTemp, Warning, TEXT("Base Health: %f"), player->Money);
+
+							}
+							break;
+						}
+						///
+
 						PlacingTower = nullptr;
 					}
 					else
