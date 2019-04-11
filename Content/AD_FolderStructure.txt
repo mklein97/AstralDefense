@@ -55,7 +55,7 @@ Maps
 	TutorialMap
 	FirstLevelMap
 	etc..
-Particles
+ParticlesSystems
 	etc..
 Props
 	Platform.mesh
