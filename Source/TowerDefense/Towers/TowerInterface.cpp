@@ -48,3 +48,9 @@ void ITowerInterface::SetTowerType(ETowerBehaviorType NewType)
 	}
 
 }
+
+float ITowerInterface::TowerCost(float CurrentStarbucks)
+{
+	FTowerObjectData* TowerOD = GetDataStruct();
+	return CurrentStarbucks - TowerOD->Cost;
+}

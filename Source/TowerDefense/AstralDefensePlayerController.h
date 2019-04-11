@@ -42,7 +42,13 @@ protected:
 	ITowerInterface* SelectedTower;
 	//ASingleLaserTower* PlacingTower;
 
+	TSubclassOf<class APlayerBase> Base;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		TArray < FTowerSearch >  Towers;
 
+	//UFUNCTION(BlueprintCallable)
+		//AAstralDefensePlayerController* get();
 
 	void PlaceTower();
 };

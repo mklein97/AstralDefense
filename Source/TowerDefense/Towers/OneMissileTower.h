@@ -131,6 +131,8 @@ protected:
 public:
 	FTowerObjectData* GetDataStruct();
 	void SetPlaced();
+	float TowerCost(float CurrentStarbucks);
+
 	void SetSelected();
 	void DisableAttackRadiusDecal();
 	void EnableAttackRadiusDecal();
