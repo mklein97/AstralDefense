@@ -57,19 +57,19 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 	////////////////
 
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>PlacementObj(TEXT("MaterialInstanceConstant'/Game/TopDownCPP/Materials/M_TowerPlacing.M_TowerPlacing'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>PlacementObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerPlacing.M_TowerPlacing'"));
 	if (PlacementObj.Succeeded())
 	{
 		PlacementMat = PlacementObj.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/TopDownCPP/Materials/M_TowerUnable.M_TowerUnable'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerRange.M_TowerRange'"));
 	if (UnableObj.Succeeded())
 	{
 		UnableMat = UnableObj.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/TopDownCPP/Materials/M_TowerRange.M_TowerRange'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerUnable.M_TowerUnable'"));
 	if (RangeObj.Succeeded())
 	{
 		AttackRadMat = RangeObj.Object;

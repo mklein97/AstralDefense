@@ -46,3 +46,5 @@ Interval 4 Dev-Log
 04/09/2019 - 
 
 04/10/2019 - 4 hours Research BP + C++ compatibility / PlayerBase BP Money <-> Tower C++ Cost Implementation
+04/11/2019 - 2 hours in class Finished Money/Tower -> Started Folder Re-Structure: AD_FolderStructure.txt
+04/11/2019 - 1 hour Finished Folder Re-Structure
