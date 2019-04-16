@@ -24,6 +24,7 @@ AAITowerController::AAITowerController(const class FObjectInitializer& ObjectIni
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
+	
 
 	GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AAITowerController::OnPawnDetected);
@@ -52,11 +53,13 @@ void AAITowerController::Possess(APawn * Pawn)
 			BlackboardComp->InitializeBlackboard(*TowerBot->BehaviorTree->BlackboardAsset);
 
 			/* Make sure the Blackboard has the type of bot we possessed */
-			SetBlackboardTowerType(TowerBot->TowerType);
+			SetBlackboardTowerType(TowerBot->TowerObjectData.TowerType);
 		}
 		UE_LOG(LogTemp, Warning, TEXT("IN CONTROLLER"));
 
-		//BehaviorComp->StartTree(*TowerBot->BehaviorTree);
+		BehaviorComp->StartTree(*TowerBot->BehaviorTree);
+
+		SightConfig->SightRadius = TowerBot->TowerObjectData.AttackRadius;
 	}
 }
 
@@ -103,11 +106,12 @@ void AAITowerController::Tick(float DeltaSeconds)
 			//UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
 		}
 		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
 	}
 	else if(bCheckOnce == false)
 	{
 		AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
-		Tower->bSensedTarget = false;
+		Tower->TowerObjectData.bSensedTarget = false;
 		SetBlackboardTowerType(ETowerBehaviorType::Inactive);
 		bCheckOnce = true;
 	}
@@ -117,20 +121,21 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("In Pawn Detected"));
 	AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
-	if (CurrentPawns.Find(DetectedPawns[0]) == -1)
+	FString Label = DetectedPawns[0]->GetActorLabel();
+	if (Label == "Enemy" && Tower->TowerObjectData.bPlaced && CurrentPawns.Find(DetectedPawns[0]) == -1)
 	{
 
 		//UE_LOG(LogTemp, Warning, TEXT("Add Pawn"));
 		bCheckOnce = false;
 		CurrentPawns.Add(DetectedPawns[0]);
-		if (!Tower->bSensedTarget)
+		if (!Tower->TowerObjectData.bSensedTarget)
 		{
 			//BroadcastUpdateAudioLoop(true);
 		}
 
 		//Keep track of the time the player was last sensed in order to clear the target 
-		Tower->LastSeenTime = GetWorld()->GetTimeSeconds();
-		Tower->bSensedTarget = true;
+		Tower->TowerObjectData.LastSeenTime = GetWorld()->GetTimeSeconds();
+		Tower->TowerObjectData.bSensedTarget = true;
 
 
 		if (GetTargetEnemy() == nullptr)
@@ -148,7 +153,7 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 			SetSelfActor(Tower);
 		}
 	}
-	else
+	else if(Label == "Enemy" && Tower->TowerObjectData.bPlaced)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Remove Pawn"));
 		CurrentPawns.Remove(DetectedPawns[0]);
@@ -171,7 +176,7 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 
 APawn * AAITowerController::GetTargetEnemy()
 {
-	if (Blackboard)
+	if (BlackboardComp)
 	{
 		return Cast<APawn>(BlackboardComp->GetValueAsObject(TargetEnemyKeyName));
 	}
@@ -180,7 +185,7 @@ APawn * AAITowerController::GetTargetEnemy()
 
 AOneMissileTower * AAITowerController::GetSelfActor()
 {
-	if (Blackboard)
+	if (BlackboardComp)
 	{
 		return Cast<AOneMissileTower>(BlackboardComp->GetValueAsObject(SelfActorKeyName));
 	}

@@ -7,6 +7,7 @@
 #include "AstralDefensePlayerController.generated.h"
 
 class AOneMissileTower;
+class ITowerInterface;
 //class ASingleLaserTower;
 /**
  * 
@@ -18,7 +19,7 @@ class TOWERDEFENSE_API AAstralDefensePlayerController : public APlayerController
 	
 public:
 	AAstralDefensePlayerController();
-	void SetPlacingTower(AOneMissileTower* Tower);
+	void SetPlacingTower(ITowerInterface* Tower);
 	//void SetPlacingTower(ASingleLaserTower* Tower);
 
 	virtual void Tick(float DeltaTime) override;
@@ -32,21 +33,22 @@ protected:
 	virtual void SetupInputComponent() override;
 	// End PlayerController interface
 
-	/** Navigate player to the current mouse cursor location. */
-	void MoveToMouseCursor();
-
-	/** Navigate player to the given world location. */
-	void SetNewMoveDestination(const FVector DestLocation);
-
 	/** Input handlers for SetDestination action. */
 	void OnSetDestinationPressed();
 	void OnSetDestinationReleased();
 
 
-	AOneMissileTower* PlacingTower;
+	ITowerInterface* PlacingTower;
+	ITowerInterface* SelectedTower;
 	//ASingleLaserTower* PlacingTower;
 
+	TSubclassOf<class APlayerBase> Base;
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		//TArray < FTowerSearch >  Towers;
 
+	//UFUNCTION(BlueprintCallable)
+		//AAstralDefensePlayerController* get();
 
 	void PlaceTower();
 };

@@ -4,18 +4,18 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 
+#include "DrawDebugHelpers.h"
 // Sets default values
 ASingleLaserProjectile::ASingleLaserProjectile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	this->bGenerateOverlapEventsDuringLevelStreaming = true;
 	// Use a sphere as a simple collision representation
 	CollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComp"));
 	CollisionComp->InitSphereRadius(5.0f);
 	CollisionComp->SetCollisionProfileName("Projectile");
-	CollisionComp->OnComponentHit.AddDynamic(this, &ASingleLaserProjectile::OnHit);	// set up a notification for when this component hits something blocking
-
+	CollisionComp->SetGenerateOverlapEvents(true);
 	// Players can't walk on it
 	CollisionComp->SetWalkableSlopeOverride(FWalkableSlopeOverride(WalkableSlope_Unwalkable, 0.f));
 	CollisionComp->CanCharacterStepUpOn = ECB_No;
@@ -26,8 +26,8 @@ ASingleLaserProjectile::ASingleLaserProjectile()
 	// Use a ProjectileMovementComponent to govern this projectile's movement
 	ProjectileMovement = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComp"));
 	ProjectileMovement->UpdatedComponent = CollisionComp;
-	ProjectileMovement->InitialSpeed = 1000.f;
-	ProjectileMovement->MaxSpeed = 1000.f;
+	ProjectileMovement->InitialSpeed = 2000.f;
+	ProjectileMovement->MaxSpeed = 2000.f;
 	//ProjectileMovement->bRotationFollowsVelocity = true;
 	ProjectileMovement->ProjectileGravityScale = 0;
 
@@ -40,7 +40,8 @@ ASingleLaserProjectile::ASingleLaserProjectile()
 void ASingleLaserProjectile::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	CollisionComp->OnComponentBeginOverlap.AddDynamic(this, &ASingleLaserProjectile::OnHit);	// set up a notification for when this component hits something blocking
+
 }
 
 // Called every frame
@@ -58,19 +59,34 @@ void ASingleLaserProjectile::Init(APawn* targetEnemy)
 	HomingMissile(TargetEnemy);
 }
 
-void ASingleLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void ASingleLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Hit!"));
 
 	// Only add impulse and destroy projectile if we hit a physics
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Hit! : %s"), *OtherActor->GetName());
+
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 	}
-
+	/*
+	DrawDebugSphere(
+		GetWorld(),
+		Hit.Location + FVector(0,0,100),
+		100,
+		12,
+		FColor::Red,
+		false,
+		3.0f);
+		*/
 	//MakeNoise(1.0f, Instigator);
-	Destroy();
+	/*
+	if (OtherActor == TargetEnemy)
+	{
+		Destroy();
+	}
+	*/
 }
 
 void ASingleLaserProjectile::HomingMissile(APawn * Target)
@@ -81,5 +97,5 @@ void ASingleLaserProjectile::HomingMissile(APawn * Target)
 
 	ProjectileMovement->HomingTargetComponent = StaticComps[0];
 	ProjectileMovement->bIsHomingProjectile = true;
-	ProjectileMovement->HomingAccelerationMagnitude = 20000;
+	ProjectileMovement->HomingAccelerationMagnitude = 30000;
 }

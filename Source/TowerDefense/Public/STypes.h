@@ -13,6 +13,19 @@ enum class ETowerBehaviorType : uint8
 	Active
 };
 
+/*
+USTRUCT()
+struct FTowerSearch
+{
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY()
+	TScriptInterface<ITowerInterface> ITower;
+	
+	UPROPERTY()
+	bool bplaced;
+};
+*/
 USTRUCT()
 struct FTakeHitInfo
 {

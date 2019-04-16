@@ -2,25 +2,34 @@
 
 #include "AstralDefensePlayerController.h"
 #include "Blueprint//AIBlueprintHelperLibrary.h"
-#include "Towers/SingleLaserTower.h"
 #include "Towers/OneMissileTower.h"
+#include "Towers/InLineTower.h"
 #include "Engine/Public/EngineUtils.h"
 #include "Engine/Engine.h"
+#include "Engine/Blueprint.h"
+#include "../PlayerBase.h"
 
 AAstralDefensePlayerController::AAstralDefensePlayerController()
 {
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+
+
 }
+
 
 void AAstralDefensePlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
 	// keep updating the destination every tick while desired
-	if (bMoveToMouseCursor)
+	if (bMoveToMouseCursor && PlacingTower)
 	{
 		PlaceTower();
+		bMoveToMouseCursor = false;
+	}
+	else
+	{
 		bMoveToMouseCursor = false;
 	}
 }
@@ -44,7 +53,12 @@ void AAstralDefensePlayerController::PlaceTower()
 	
 	if (PlacingTower)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Placing Tower Name: %s"), *PlacingTower->GetName());
+		//FTowerSearch Tower2Array;
+		//Tower2Array.ITower = PlacingTower;
+		//Tower2Array.bplaced = false;
+		//Towers->Add(Tower2Array);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Placing Tower Name: %s"), *PlacingTower->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("|"));
 		for (TActorIterator<AOneMissileTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
@@ -58,76 +72,115 @@ void AAstralDefensePlayerController::PlaceTower()
 			);
 
 			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
-			if (Tower == PlacingTower)
-			{
 
-				if (Tower->TowerObjectData.bCollidesToggle)
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
-
-					Tower->SetPlaced();
-				}
-				else
-				{
-					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
-				}
-				//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
-			}
-			else
+			AOneMissileTower* TempPlaceTower = Cast<AOneMissileTower>(PlacingTower);
+			if (TempPlaceTower)
 			{
-				ITowerInterface* Actor2Interface = Cast<ITowerInterface>(Tower);
-				if (Actor2Interface)
+				if (Tower == TempPlaceTower)
 				{
-					if (PlacingTower->IsCollidingWith(*Actor2Interface))
+					UE_LOG(LogTemp, Warning, TEXT("EQUAL!"));
+
+					if (Tower->TowerObjectData.bCollidesToggle)
 					{
-						UE_LOG(LogTemp, Warning, TEXT("COLLIDING!"));
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
+
+						Tower->SetPlaced();
+						///
+						UE_LOG(LogTemp, Warning, TEXT("Start Looking for Base"));
+						for (TActorIterator<APlayerBase> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Looking for Base"));
+
+							// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+							APlayerBase* player = *ActorItr;
+							if (player != nullptr)
+							{
+								UE_LOG(LogTemp, Warning, TEXT("Base Money: %d"), player->Money);
+								player->Money -= 20;// Tower->TowerCost(player->Money);
+								UE_LOG(LogTemp, Warning, TEXT("Base Money: %d"), player->Money);
+
+							}
+							break;
+						}
+						///
+
+						//Tower2Array.bplaced = true;
+						PlacingTower = nullptr;
 					}
 					else
 					{
-						UE_LOG(LogTemp, Warning, TEXT("NOT COLLIDING!"));
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
 					}
+					//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
 				}
-				//Tower->SetPlaced();
-				UE_LOG(LogTemp, Warning, TEXT("NonPlacing Tower Name: %s"), *Tower->GetName());
+				
+			}
+			
+		}
+
+		for (TActorIterator<AInLineTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			//ASingleLaserTower *Tower = *ActorItr;
+			AInLineTower *Tower = *ActorItr;
+
+			FTransform LocalToWorld = FTransform(
+				FRotator(0, 0, 0),
+				Tower->GetActorLocation(),
+				FVector(1, 1, 1)
+			);
+
+			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
+
+			AInLineTower* TempPlaceTower = Cast<AInLineTower>(PlacingTower);
+			if (TempPlaceTower)
+			{
+				if (Tower == TempPlaceTower)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("EQUAL!"));
+
+					if (Tower->TowerObjectData.bCollidesToggle)
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
+
+						Tower->SetPlaced();
+
+						///
+						UE_LOG(LogTemp, Warning, TEXT("Start Looking for Base"));
+						for (TActorIterator<APlayerBase> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+						{
+							UE_LOG(LogTemp, Warning, TEXT("Looking for Base"));
+
+							// Same as with the Object Iterator, access the subclass instance with the * or -> operators.
+							APlayerBase* player = *ActorItr;
+							if (player != nullptr)
+							{
+								player->Money = Tower->TowerCost(player->Money);
+								UE_LOG(LogTemp, Warning, TEXT("Base Health: %f"), player->Money);
+
+							}
+							break;
+						}
+						///
+
+						PlacingTower = nullptr;
+					}
+					else
+					{
+						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
+					}
+					//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
+				}
+
 			}
 
-			//ClientMessage(ActorItr->GetName());
-			//ClientMessage(ActorItr->GetActorLocation().ToString());
 		}
 	}
 	UE_LOG(LogTemp, Warning, TEXT("|"));
 
 }
 
-void AAstralDefensePlayerController::MoveToMouseCursor()
-{
-	// Trace to see what is under the mouse cursor
-	FHitResult Hit;
-	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 
-	if (Hit.bBlockingHit)
-	{
-		// We hit something, move there
-		SetNewMoveDestination(Hit.ImpactPoint);
-	}
 
-}
-
-void AAstralDefensePlayerController::SetNewMoveDestination(const FVector DestLocation)
-{
-
-	APawn* const MyPawn = GetPawn();
-	if (MyPawn)
-	{
-		float const Distance = FVector::Dist(DestLocation, MyPawn->GetActorLocation());
-
-		// We need to issue move command only if far enough in order for walk animation to play correctly
-		if ((Distance > 120.0f))
-		{
-			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, DestLocation);
-		}
-	}
-}
 
 void AAstralDefensePlayerController::OnSetDestinationPressed()
 {
@@ -139,6 +192,40 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 {
 	// clear flag to indicate we should stop updating the destination
 	bMoveToMouseCursor = true;
+	// Trace to see what is under the mouse cursor
+	FHitResult Hit;
+	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+
+	if (Hit.bBlockingHit)
+	{
+
+		if (SelectedTower)
+		{
+			UE_LOG(LogTemp, Warning, TEXT(""));
+
+			FTowerObjectData* TowerOD = SelectedTower->GetDataStruct();
+			TowerOD->bSelected = false;
+			// We hit something, move there
+			AOneMissileTower* Tower = Cast<AOneMissileTower>(Hit.GetActor());
+			SelectedTower = Cast<ITowerInterface>(Tower);
+			if (SelectedTower)
+			{
+				Tower->SetSelected();
+			}
+		}
+		else
+		{
+
+			// We hit something, move there
+			AOneMissileTower* Tower = Cast<AOneMissileTower>(Hit.GetActor());
+			SelectedTower = Cast<ITowerInterface>(Tower);
+			if (SelectedTower)
+			{
+				Tower->SetSelected();
+			}
+		}
+	}
+
 }
 
 /*
@@ -147,7 +234,7 @@ void AAstralDefensePlayerController::SetPlacingTower(ASingleLaserTower * Tower)
 	this->PlacingTower = Tower;
 }*/
 
-void AAstralDefensePlayerController::SetPlacingTower(AOneMissileTower * Tower)
+void AAstralDefensePlayerController::SetPlacingTower(ITowerInterface * Tower)
 {
 	this->PlacingTower = Tower;
 }
@@ -156,7 +243,8 @@ void AAstralDefensePlayerController::Tick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
 
-	if (PlacingTower && PlacingTower->TowerObjectData.bPlacing)
+	// CHECK IF PERFORMANCE ISSUE
+	if (PlacingTower)// && PlacingTower->TowerObjectData.bPlacing)
 	{
 		for (TActorIterator<AOneMissileTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 		{
@@ -172,6 +260,23 @@ void AAstralDefensePlayerController::Tick(float DeltaTime)
 			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
 
 			
+			//ClientMessage(ActorItr->GetName());
+			//ClientMessage(ActorItr->GetActorLocation().ToString());
+		}
+		for (TActorIterator<AInLineTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+		{
+			//ASingleLaserTower *Tower = *ActorItr;
+			AInLineTower *Tower = *ActorItr;
+
+			FTransform LocalToWorld = FTransform(
+				FRotator(0, 0, 0),
+				Tower->GetActorLocation(),
+				FVector(1, 1, 1)
+			);
+
+			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
+
+
 			//ClientMessage(ActorItr->GetName());
 			//ClientMessage(ActorItr->GetActorLocation().ToString());
 		}

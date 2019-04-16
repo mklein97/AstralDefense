@@ -18,6 +18,9 @@ Interval 1 Dev-Log
 02/22/2019: 6 hours Collision Worked, needed tweaks to Decals
 02/23/2019: 4 hours Small Overhaul on Collision, Tower Placement is now working as intended
 
+Interval 2 Dev-Log
+02/26/2019 - 03/26/2019
+
 02/26/2019: 2 hours in class Merge Day
 02/28/2019: 2 hours in class Tower Rotation following Pawn
 03/02/2019: 3 hours Getting Single Laser Projectile Working
@@ -28,3 +31,20 @@ Interval 1 Dev-Log
 03/19/2019: 3 hours finished Pawn AI Tower and added cost to towers
 03/25/2019: 6 hours Error in shooting for towers, had to revert to old version
 
+Interval 3 Dev-Log
+03/26/2019 - 04/09/2019
+
+03/28/2019: 2 hours Fixed Tower problems in class
+03/30/2019: 3 hours Enhanced AI and eliminated certain bugs for towers
+04/02/2019: 2 hours Research / Implemented Homing Missile Tower
+04/04/2019: 2 hours Select tower and started fixing the second InLineTower
+04/05/2019: 1 hour Worked on InLineTower 
+04/07/2019: 2 hours "Lightning Particle" and applied it to InLineTower AIController
+04/08/2019: 5 hours finished working InLineTower..error on de-spawning lightning particles
+
+Interval 4 Dev-Log
+04/09/2019 - 
+
+04/10/2019 - 4 hours Research BP + C++ compatibility / PlayerBase BP Money <-> Tower C++ Cost Implementation
+04/11/2019 - 2 hours in class Finished Money/Tower -> Started Folder Re-Structure: AD_FolderStructure.txt
+04/11/2019 - 1 hour Finished Folder Re-Structure

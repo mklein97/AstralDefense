@@ -1,0 +1,5 @@
+EnemyAI : changed name to BP_EnemyAI
+BigAI : changed name to BP_BigAI
+BP_EnemyAI :Set Actor Label to (Enemy)correctly find it in C++
+BP_BigAI :Set Actor Label to (Enemy)correctly find it in C++
+BP_EnemyAI: Generate Overlap Events on Mesh and Collisions

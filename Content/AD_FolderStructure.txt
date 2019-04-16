@@ -11,6 +11,10 @@ Assets
 		Textures
 		Materials
 			MaterialLayers
+	Level
+	Miscellaneous
+		Materials
+		Textures
 	Tower
 		OneMissileTower
 			Animations
@@ -49,13 +53,16 @@ Blueprints
 		BP_etc...
 		AI
 			BP_AITowerController
+General
+	Materials
+	Textures
 Geometry
 	etc...
 Maps
 	TutorialMap
 	FirstLevelMap
 	etc..
-Particles
+ParticlesSystems
 	etc..
 Props
 	Platform.mesh
