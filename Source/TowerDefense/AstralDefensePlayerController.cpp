@@ -8,6 +8,8 @@
 #include "Engine/Public/EngineUtils.h"
 #include "Engine/Engine.h"
 #include "Engine/Blueprint.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "../PlayerBase.h"
 
 AAstralDefensePlayerController::AAstralDefensePlayerController()
@@ -198,7 +200,6 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
 	FHitResult Selection;
 	GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(COLLISION_TOWERS),false,Selection);
-	
 
 	if (Hit.bBlockingHit)
 	{
@@ -208,6 +209,8 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 	}
 	if (Selection.bBlockingHit)
 	{
+		//DrawDebugLine(GetWorld(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation(), Selection.GetActor()->GetActorLocation(), FColor::Red, false, 1, 0, 2.f);
+
 		UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
 		UE_LOG(LogTemp, Warning, TEXT("%s"), *Selection.GetActor()->GetName());
 
@@ -218,7 +221,7 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 			FTowerObjectData* TowerOD = SelectedTower->GetDataStruct();
 			TowerOD->bSelected = false;
 			// We hit something, move there
-			AOneMissileTower* Tower = Cast<AOneMissileTower>(Hit.GetActor());
+			AOneMissileTower* Tower = Cast<AOneMissileTower>(Selection.GetActor());
 			SelectedTower = Cast<ITowerInterface>(Tower);
 			if (SelectedTower)
 			{
@@ -226,7 +229,7 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 			}
 			else
 			{
-				AInLineTower* Tower = Cast<AInLineTower>(Hit.GetActor());
+				AInLineTower* Tower = Cast<AInLineTower>(Selection.GetActor());
 				SelectedTower = Cast<ITowerInterface>(Tower);
 				if (SelectedTower)
 
@@ -237,7 +240,7 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 		{
 
 			// We hit something, move there
-			AOneMissileTower* Tower = Cast<AOneMissileTower>(Hit.GetActor());
+			AOneMissileTower* Tower = Cast<AOneMissileTower>(Selection.GetActor());
 			SelectedTower = Cast<ITowerInterface>(Tower);
 			if (SelectedTower)
 			{
@@ -245,7 +248,7 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 			}
 			else
 			{
-				AInLineTower* Tower = Cast<AInLineTower>(Hit.GetActor());
+				AInLineTower* Tower = Cast<AInLineTower>(Selection.GetActor());
 				SelectedTower = Cast<ITowerInterface>(Tower);
 				if (SelectedTower)
 
