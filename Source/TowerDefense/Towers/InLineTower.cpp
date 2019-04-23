@@ -110,7 +110,7 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 
 	RootComponent = MeshComp;
 
-	TowerObjectData.Cost = 50;
+	TowerObjectData.Cost = 500;
 
 
 	//Health = 100;

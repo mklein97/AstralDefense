@@ -69,13 +69,13 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 		PlacementMat = PlacementObj.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerRange.M_TowerRange'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerUnable.M_TowerUnable'"));
 	if (UnableObj.Succeeded())
 	{
 		UnableMat = UnableObj.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerUnable.M_TowerUnable'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerRange.M_TowerRange'"));
 	if (RangeObj.Succeeded())
 	{
 		AttackRadMat = RangeObj.Object;
@@ -124,7 +124,7 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 	RootComponent = MeshComp;
 
-	TowerObjectData.Cost = 20;
+	TowerObjectData.Cost = 200;
 
 
 	//Health = 100;
@@ -140,7 +140,7 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 	TowerObjectData.AITController = Cast<AAITowerController>(GetController());
 	TowerObjectData.CurrentTarget = nullptr;
-	this->SetActorEnableCollision(false);
+	this->SetActorEnableCollision(true);
 
 }
 
@@ -158,7 +158,7 @@ void AOneMissileTower::SetPlaced()
 		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
 		FVector(1, 1, 1)));
 	DisableAttackRadiusDecal();
-	//this->SetActorEnableCollision(true);
+	this->SetActorEnableCollision(true);
 }
 
 int32 AOneMissileTower::TowerCost(int32 CurrentStarbucks)
@@ -312,7 +312,7 @@ void AOneMissileTower::BeginPlay()
 	TowerObjectData.AITController = Cast<AAITowerController>(this->GetController());
 	TowerObjectData.CurrentTarget = nullptr;
 
-	this->SetActorEnableCollision(false);
+	this->SetActorEnableCollision(true);
 
 }
 
