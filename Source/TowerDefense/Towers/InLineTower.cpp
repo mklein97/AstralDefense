@@ -1,5 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#define COLLISION_TOWERS		ECC_GameTraceChannel2
 #include "InLineTower.h"
 #include "AILineTowerController.h"
 #include "STowerState.h"
@@ -195,6 +195,7 @@ void AInLineTower::Tick(float DeltaTime)
 		//APlayerController* Test = GetWorld()->GetFirstPlayerController();
 		FHitResult TraceHitResult;
 		PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
+		
 		FVector CursorFV = TraceHitResult.ImpactNormal;
 		FRotator CursorR = CursorFV.Rotation();
 		this->SetActorLocation(TraceHitResult.Location);
@@ -211,7 +212,11 @@ void AInLineTower::Tick(float DeltaTime)
 			FColor::Emerald,
 			false,
 			1.0f);
+
 		*/
+		FHitResult Selection;
+		PlayerController->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(COLLISION_TOWERS), false, Selection);
+
 		if (!TowerObjectData.bSelected)
 		{
 			DisableAttackRadiusDecal();

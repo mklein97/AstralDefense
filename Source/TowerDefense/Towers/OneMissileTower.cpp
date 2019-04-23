@@ -46,7 +46,9 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Comp"));
-	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetCollisionProfileName("TowerVisibility");
+	MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+
 
 	MaterialPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Plane Material"));
 	MaterialPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -156,7 +158,7 @@ void AOneMissileTower::SetPlaced()
 		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
 		FVector(1, 1, 1)));
 	DisableAttackRadiusDecal();
-	this->SetActorEnableCollision(true);
+	//this->SetActorEnableCollision(true);
 }
 
 int32 AOneMissileTower::TowerCost(int32 CurrentStarbucks)
@@ -249,6 +251,10 @@ void AOneMissileTower::BeginPlay()
 	{
 		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(this);
 	}
+
+	MeshComp->SetCollisionProfileName("TowerVisibility");
+	MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+
 	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
 	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);

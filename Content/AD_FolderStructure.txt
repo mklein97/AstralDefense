@@ -53,9 +53,6 @@ Blueprints
 		BP_etc...
 		AI
 			BP_AITowerController
-General
-	Materials
-	Textures
 Geometry
 	etc...
 Maps
