@@ -99,14 +99,14 @@ void AAITowerController::Tick(float DeltaSeconds)
 			SetTargetEnemy(SensedPawn);
 			
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
-		//for (auto& Actor : CurrentPawns)
+		UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
+		for (auto& Actor : CurrentPawns)
 		{
-			//APawn* EnemyPawn = Cast<APawn>(Actor);
-			//UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+			APawn* EnemyPawn = Cast<APawn>(Actor);
+			UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
 		}
-		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
-		//UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
 	}
 	else if(bCheckOnce == false)
 	{
