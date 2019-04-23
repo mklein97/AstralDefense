@@ -48,10 +48,11 @@ void AAstralDefenseGameMode::Tick(float DeltaSeconds)
 					GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, FString::Printf(TEXT("DEATH")));
 				if (!flag)
 				{
-					GetWorldTimerManager().SetTimer(timer, this, &AAstralDefenseGameMode::resetTimer, 5.0f, false);
+					GetWorldTimerManager().SetTimer(deathTimer, this, &AAstralDefenseGameMode::resetTimer, 5.0f, false);
 					flag = true;
 				}
 			}
+
 		}
 		break;
 	}
@@ -60,5 +61,5 @@ void AAstralDefenseGameMode::Tick(float DeltaSeconds)
 void AAstralDefenseGameMode::resetTimer()
 {
 	UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
-	GetWorldTimerManager().ClearTimer(timer);
+	GetWorldTimerManager().ClearTimer(deathTimer);
 }

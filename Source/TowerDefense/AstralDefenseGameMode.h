@@ -23,7 +23,7 @@ public:
 
 	void resetTimer();
 
-	FTimerHandle timer;
+	FTimerHandle deathTimer;
 private:
 	bool flag;
 };
