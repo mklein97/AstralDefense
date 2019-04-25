@@ -57,6 +57,8 @@ public:
 
 	void SetBlackboardTowerType(ETowerBehaviorType NewType);
 
+	// Current Target Killed Returns Next Target
+	APawn* TargetWasKilled();
 
 	FORCEINLINE UBehaviorTreeComponent* GetBehaviorComp() const { return BehaviorComp; }
 
@@ -80,6 +82,7 @@ public:
 	virtual FRotator GetControlRotation() const override;
 
 	TArray<AActor*> CurrentPawns;
+	APawn* CurrentTarget;
 	UStaticMeshComponent* TargetMesh;
 	bool bCheckOnce;
 };
