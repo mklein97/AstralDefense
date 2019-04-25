@@ -203,20 +203,20 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 
 	if (Hit.bBlockingHit)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit Works"));
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *Hit.GetActor()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Hit Works"));
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *Hit.GetActor()->GetName());
 
 	}
 	if (Selection.bBlockingHit)
 	{
 		//DrawDebugLine(GetWorld(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation(), Selection.GetActor()->GetActorLocation(), FColor::Red, false, 1, 0, 2.f);
 
-		UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *Selection.GetActor()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *Selection.GetActor()->GetName());
 
 		if (SelectedTower)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
+			//UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
 
 			FTowerObjectData* TowerOD = SelectedTower->GetDataStruct();
 			TowerOD->bSelected = false;

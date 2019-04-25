@@ -114,7 +114,7 @@ EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & O
 
 
 			// try and fire a projectile
-			if (MissileTower && MissileTower->TowerObjectData.bPlaced &&MissileTower->ProjectileClass)
+			if (Target && MissileTower && MissileTower->TowerObjectData.bPlaced && MissileTower->ProjectileClass)
 			{
 
 
@@ -150,7 +150,7 @@ EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & O
 				//GetWorld()->SpawnActor<ASingleLaserProjectile>(Tower->ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 				if (Projectile != nullptr)
 				{
-					Projectile->Init(Target);
+					Projectile->Init(MissileController);
 					UE_LOG(LogTemp, Warning, TEXT("In Fire At Target"));
 
 					UGameplayStatics::FinishSpawningActor(Projectile, FTransform(SpawnRotation, SpawnLocation));

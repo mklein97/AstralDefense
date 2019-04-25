@@ -8,6 +8,7 @@
 
 class UProjectileMovementComponent;
 class USphereComponent;
+class AAITowerController;
 UCLASS()
 class TOWERDEFENSE_API ASingleLaserProjectile : public AActor
 {
@@ -29,6 +30,8 @@ public:
 	/** Projectile movement component */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	UProjectileMovementComponent* ProjectileMovement;
+
+	bool bHoming;
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -39,8 +42,9 @@ public:
 	/** Returns ProjectileMovement subobject **/
 	UProjectileMovementComponent* GetProjectileMovement() const { return ProjectileMovement; }
 
-	void Init(APawn* targetEnemy);
+	void Init(AAITowerController* missileController);
 	
+	AAITowerController* MissileController;
 	APawn* TargetEnemy;
 	/** called when projectile hits something */
 	UFUNCTION()
