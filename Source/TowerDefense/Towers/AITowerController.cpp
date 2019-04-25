@@ -88,14 +88,22 @@ void AAITowerController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
+
+
 	if (CurrentPawns.Num() > 0)
 	{
-		if (GetTargetEnemy() == nullptr)
+		if (!GetTargetEnemy() && CurrentTarget)
+		{
+			CurrentPawns.Remove(CurrentTarget);
+		}
+
+		if (GetTargetEnemy() == nullptr && !CurrentTarget)
 		{
 			APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
 
 
 			TargetMesh->SetRenderCustomDepth(true);
+			CurrentTarget = SensedPawn;
 			SetTargetEnemy(SensedPawn);
 			
 		}
@@ -106,6 +114,7 @@ void AAITowerController::Tick(float DeltaSeconds)
 			UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
 		}
 		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		UE_LOG(LogTemp, Warning, TEXT("TargetEnemy: %s"), *CurrentTarget->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
 	}
 	else if(bCheckOnce == false)
@@ -148,6 +157,7 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 
 			TargetMesh->SetRenderCustomDepth(true);
 
+			CurrentTarget = SensedPawn;
 			SetTargetEnemy(SensedPawn);
 			SetBlackboardTowerType(ETowerBehaviorType::Active);
 			SetSelfActor(Tower);
@@ -158,6 +168,7 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 		//UE_LOG(LogTemp, Warning, TEXT("Remove Pawn"));
 		CurrentPawns.Remove(DetectedPawns[0]);
 		TargetMesh->SetRenderCustomDepth(false);
+		CurrentTarget = nullptr;
 		SetTargetEnemy(nullptr);
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("Out Pawn Detected"));
@@ -214,6 +225,23 @@ void AAITowerController::SetBlackboardTowerType(ETowerBehaviorType NewType)
 	{
 		BlackboardComp->SetValueAsEnum(TowerTypeKeyName, (uint8)NewType);
 	}
+}
+
+// Current Target Killed Returns Next Target
+APawn * AAITowerController::TargetWasKilled()
+{
+	CurrentPawns.RemoveAt(0);
+	if (CurrentPawns.Num() > 0)
+	{
+		APawn* NewSensedPawn = Cast<APawn>(CurrentPawns[0]);
+		CurrentTarget = NewSensedPawn;
+		SetTargetEnemy(NewSensedPawn);
+		
+		return NewSensedPawn;
+	}
+	
+
+	return nullptr;
 }
 
 

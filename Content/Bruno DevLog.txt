@@ -49,3 +49,7 @@ Interval 4 Dev-Log
 04/11/2019 - 2 hours in class Finished Money/Tower -> Started Folder Re-Structure: AD_FolderStructure.txt
 04/11/2019 - 1 hour Finished Folder Re-Structure
 04/12/2019 - Fixed >> Can also Select InLine Tower
+04/16/2019 - 2 hours in class Upgrade Research
+04/22/2019 - 4 hours Collision/Trace Channel Issues
+04/23/2019 - 2 hours in class fixed Selection and Trace Channel for Tower Placement
+04/24/2019 - 1.5 hours worked on having Tower choose next target after killing

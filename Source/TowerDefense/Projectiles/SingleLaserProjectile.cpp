@@ -4,6 +4,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 
+#include "../Towers/AITowerController.h"
+
 #include "DrawDebugHelpers.h"
 // Sets default values
 ASingleLaserProjectile::ASingleLaserProjectile()
@@ -49,11 +51,29 @@ void ASingleLaserProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (bHoming)
+	{
+		if (!TargetEnemy)
+		{
+			// Current Target Killed Returns Next Target
+			TargetEnemy = MissileController->TargetWasKilled();
+			if (!TargetEnemy)
+			{
+				bHoming = false;
+			}
+			else
+			{
+				HomingMissile(TargetEnemy);
+			}
+		}
+	}
 }
 
-void ASingleLaserProjectile::Init(APawn* targetEnemy)
+void ASingleLaserProjectile::Init(AAITowerController* missileController)
 {
-	TargetEnemy = targetEnemy;
+	MissileController = missileController;
+	
+	TargetEnemy = MissileController->GetTargetEnemy();
 	UE_LOG(LogTemp, Warning, TEXT("Target : %s"), *TargetEnemy->GetName());
 
 	HomingMissile(TargetEnemy);
@@ -66,7 +86,7 @@ void ASingleLaserProjectile::OnHit(UPrimitiveComponent* HitComp, AActor* OtherAc
 	if ((OtherActor != NULL) && (OtherActor != this) && (OtherComp != NULL) && OtherComp->IsSimulatingPhysics())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit! : %s"), *OtherActor->GetName());
-
+		bHoming = false;
 		//OtherComp->AddImpulseAtLocation(GetVelocity() * 100.0f, GetActorLocation());
 
 	}
@@ -94,6 +114,7 @@ void ASingleLaserProjectile::HomingMissile(APawn * Target)
 	TArray<UStaticMeshComponent*> StaticComps;
 	AActor* TargetActor = Cast<AActor>(Target);
 	TargetActor->GetComponents<UStaticMeshComponent>(StaticComps);
+	bHoming = true;
 
 	ProjectileMovement->HomingTargetComponent = StaticComps[0];
 	ProjectileMovement->bIsHomingProjectile = true;
