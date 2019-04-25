@@ -110,8 +110,12 @@ void AAITowerController::Tick(float DeltaSeconds)
 		UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
 		for (auto& Actor : CurrentPawns)
 		{
-			APawn* EnemyPawn = Cast<APawn>(Actor);
-			UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+			if (Actor)
+			{
+				APawn* EnemyPawn = Cast<APawn>(Actor);
+				UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
+			}
+			
 		}
 		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
 		UE_LOG(LogTemp, Warning, TEXT("TargetEnemy: %s"), *CurrentTarget->GetName());
