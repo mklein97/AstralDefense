@@ -1,4 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
+#define COLLISION_TOWERS		ECC_GameTraceChannel2
 
 #include "AstralDefensePlayerController.h"
 #include "Blueprint//AIBlueprintHelperLibrary.h"
@@ -7,6 +8,8 @@
 #include "Engine/Public/EngineUtils.h"
 #include "Engine/Engine.h"
 #include "Engine/Blueprint.h"
+#include "DrawDebugHelpers.h"
+#include "Engine/Classes/Kismet/GameplayStatics.h"
 #include "../PlayerBase.h"
 
 AAstralDefensePlayerController::AAstralDefensePlayerController()
@@ -49,8 +52,8 @@ void AAstralDefensePlayerController::PlaceTower()
 	//UE_LOG(LogTemp, Warning, TEXT("Relative Location, %d, %d, %d"), PlacementDecalComp->getlocation );
 	//UE_LOG(LogTemp, Warning, TEXT("In Place Tower"));
 
-	
-	
+
+
 	if (PlacingTower)
 	{
 		//FTowerSearch Tower2Array;
@@ -66,9 +69,9 @@ void AAstralDefensePlayerController::PlaceTower()
 			AOneMissileTower *Tower = *ActorItr;
 
 			FTransform LocalToWorld = FTransform(
-				FRotator(0,0,0),
+				FRotator(0, 0, 0),
 				Tower->GetActorLocation(),
-				FVector(1,1,1)
+				FVector(1, 1, 1)
 			);
 
 			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
@@ -82,7 +85,7 @@ void AAstralDefensePlayerController::PlaceTower()
 
 					if (Tower->TowerObjectData.bCollidesToggle)
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
 						Tower->SetPlaced();
 						///
@@ -109,13 +112,13 @@ void AAstralDefensePlayerController::PlaceTower()
 					}
 					else
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
 					}
 					//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
 				}
-				
+
 			}
-			
+
 		}
 
 		for (TActorIterator<AInLineTower> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -140,7 +143,7 @@ void AAstralDefensePlayerController::PlaceTower()
 
 					if (Tower->TowerObjectData.bCollidesToggle)
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
 						Tower->SetPlaced();
 
@@ -166,7 +169,7 @@ void AAstralDefensePlayerController::PlaceTower()
 					}
 					else
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
 					}
 					//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
 				}
@@ -195,33 +198,61 @@ void AAstralDefensePlayerController::OnSetDestinationReleased()
 	// Trace to see what is under the mouse cursor
 	FHitResult Hit;
 	GetHitResultUnderCursor(ECC_Visibility, false, Hit);
+	FHitResult Selection;
+	GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(COLLISION_TOWERS),false,Selection);
 
 	if (Hit.bBlockingHit)
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("Hit Works"));
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *Hit.GetActor()->GetName());
+
+	}
+	if (Selection.bBlockingHit)
+	{
+		//DrawDebugLine(GetWorld(), UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)->GetActorLocation(), Selection.GetActor()->GetActorLocation(), FColor::Red, false, 1, 0, 2.f);
+
+		//UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *Selection.GetActor()->GetName());
 
 		if (SelectedTower)
 		{
-			UE_LOG(LogTemp, Warning, TEXT(""));
+			//UE_LOG(LogTemp, Warning, TEXT("Found Tower!"));
 
 			FTowerObjectData* TowerOD = SelectedTower->GetDataStruct();
 			TowerOD->bSelected = false;
 			// We hit something, move there
-			AOneMissileTower* Tower = Cast<AOneMissileTower>(Hit.GetActor());
+			AOneMissileTower* Tower = Cast<AOneMissileTower>(Selection.GetActor());
 			SelectedTower = Cast<ITowerInterface>(Tower);
 			if (SelectedTower)
 			{
 				Tower->SetSelected();
+			}
+			else
+			{
+				AInLineTower* Tower = Cast<AInLineTower>(Selection.GetActor());
+				SelectedTower = Cast<ITowerInterface>(Tower);
+				if (SelectedTower)
+
+					Tower->SetSelected();
 			}
 		}
 		else
 		{
 
 			// We hit something, move there
-			AOneMissileTower* Tower = Cast<AOneMissileTower>(Hit.GetActor());
+			AOneMissileTower* Tower = Cast<AOneMissileTower>(Selection.GetActor());
 			SelectedTower = Cast<ITowerInterface>(Tower);
 			if (SelectedTower)
 			{
 				Tower->SetSelected();
+			}
+			else
+			{
+				AInLineTower* Tower = Cast<AInLineTower>(Selection.GetActor());
+				SelectedTower = Cast<ITowerInterface>(Tower);
+				if (SelectedTower)
+
+					Tower->SetSelected();
 			}
 		}
 	}
@@ -259,7 +290,7 @@ void AAstralDefensePlayerController::Tick(float DeltaTime)
 
 			Tower->TowerObjectData.CollisionBounds = Tower->CollisionComp->CalcBounds(LocalToWorld);
 
-			
+
 			//ClientMessage(ActorItr->GetName());
 			//ClientMessage(ActorItr->GetActorLocation().ToString());
 		}
