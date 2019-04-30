@@ -26,7 +26,9 @@ struct FTowerObjectData
 
 	bool Reloading;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 Cost;
+	
 	int Kills;
 
 	bool bPlaced = false;

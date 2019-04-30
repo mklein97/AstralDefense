@@ -64,3 +64,5 @@ Interval 4 Dev-Log
 04/29/2019 - 4 hours
 	Enemy Takes Damage from InLineTower
 	Corrected Tower Starbucks Cost Issue
+	Fixed Crashes that occurred thanks to null ptrs in Tick function
+Tried to fix Enemy Red Highlight on Target

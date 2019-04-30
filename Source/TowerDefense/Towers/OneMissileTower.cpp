@@ -201,6 +201,8 @@ void AOneMissileTower::BeginPlay()
 	TowerObjectData.LaserFireRate = 2;
 	TowerObjectData.Reloading = false;
 
+	//TowerObjectData.Cost = 200;
+
 	//////////////////////////////////
 
 	/* Assign a basic name to identify the bots in the HUD. */

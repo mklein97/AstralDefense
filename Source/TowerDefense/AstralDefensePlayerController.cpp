@@ -87,7 +87,6 @@ void AAstralDefensePlayerController::PlaceTower()
 					{
 						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
-						Tower->SetPlaced();
 						///
 						UE_LOG(LogTemp, Warning, TEXT("Start Looking for Base"));
 						for (TActorIterator<APlayerBase> ActorItr(GetWorld()); ActorItr; ++ActorItr)
@@ -99,7 +98,20 @@ void AAstralDefensePlayerController::PlaceTower()
 							if (player != nullptr)
 							{
 								UE_LOG(LogTemp, Warning, TEXT("Base Money: %d"), player->Money);
-								player->Money -= 20;// Tower->TowerCost(player->Money);
+								UE_LOG(LogTemp, Warning, TEXT("Real Tower Cost: %d"), Tower->TowerObjectData.Cost);
+
+								if (player->Money - TempPlaceTower->TowerObjectData.Cost < 0)
+								{
+
+								}
+								else
+								{
+									player->Money = TempPlaceTower->TowerCost(player->Money);
+									TempPlaceTower->SetPlaced();
+									PlacingTower = nullptr;
+
+
+								}
 								UE_LOG(LogTemp, Warning, TEXT("Base Money: %d"), player->Money);
 
 							}
@@ -108,7 +120,6 @@ void AAstralDefensePlayerController::PlaceTower()
 						///
 
 						//Tower2Array.bplaced = true;
-						PlacingTower = nullptr;
 					}
 					else
 					{
@@ -145,7 +156,6 @@ void AAstralDefensePlayerController::PlaceTower()
 					{
 						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
-						Tower->SetPlaced();
 
 						///
 						UE_LOG(LogTemp, Warning, TEXT("Start Looking for Base"));
@@ -157,15 +167,25 @@ void AAstralDefensePlayerController::PlaceTower()
 							APlayerBase* player = *ActorItr;
 							if (player != nullptr)
 							{
-								player->Money = Tower->TowerCost(player->Money);
-								UE_LOG(LogTemp, Warning, TEXT("Base Health: %f"), player->Money);
+								if (player->Money - TempPlaceTower->TowerObjectData.Cost < 0)
+								{
+
+								}
+								else
+								{
+									player->Money = TempPlaceTower->TowerCost(player->Money);
+									TempPlaceTower->SetPlaced();
+
+									UE_LOG(LogTemp, Warning, TEXT("Base Health: %f"), player->Money);
+									PlacingTower = nullptr;
+
+								}
 
 							}
 							break;
 						}
 						///
 
-						PlacingTower = nullptr;
 					}
 					else
 					{

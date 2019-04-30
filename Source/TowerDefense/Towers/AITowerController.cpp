@@ -6,6 +6,9 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -24,7 +27,7 @@ AAITowerController::AAITowerController(const class FObjectInitializer& ObjectIni
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectFriendlies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
-	
+
 
 	GetPerceptionComponent()->SetDominantSense(*SightConfig->GetSenseImplementation());
 	GetPerceptionComponent()->OnPerceptionUpdated.AddDynamic(this, &AAITowerController::OnPawnDetected);
@@ -99,14 +102,20 @@ void AAITowerController::Tick(float DeltaSeconds)
 
 		if (GetTargetEnemy() == nullptr && !CurrentTarget)
 		{
-			APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
+			if (CurrentPawns[0])
+			{
+				APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
 
+				if (TargetMesh)
+				{
+					TargetMesh->SetRenderCustomDepth(true);
+				}
+				CurrentTarget = SensedPawn;
+				SetTargetEnemy(SensedPawn);
+			}
 
-			TargetMesh->SetRenderCustomDepth(true);
-			CurrentTarget = SensedPawn;
-			SetTargetEnemy(SensedPawn);
-			
 		}
+		/*
 		UE_LOG(LogTemp, Warning, TEXT("^^^^^^^^^^"));
 		for (auto& Actor : CurrentPawns)
 		{
@@ -115,13 +124,14 @@ void AAITowerController::Tick(float DeltaSeconds)
 				APawn* EnemyPawn = Cast<APawn>(Actor);
 				UE_LOG(LogTemp, Warning, TEXT("Pawn: %s"), *EnemyPawn->GetName());
 			}
-			
+
 		}
 		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
 		UE_LOG(LogTemp, Warning, TEXT("TargetEnemy: %s"), *CurrentTarget->GetName());
 		UE_LOG(LogTemp, Warning, TEXT("VVVVVVVVVVVV"));
+		*/
 	}
-	else if(bCheckOnce == false)
+	else if (bCheckOnce == false)
 	{
 		AOneMissileTower* Tower = Cast<AOneMissileTower>(GetPawn());
 		Tower->TowerObjectData.bSensedTarget = false;
@@ -157,9 +167,19 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 			TArray<UStaticMeshComponent*> StaticComps;
 			AActor* TargetActor = Cast<AActor>(SensedPawn);
 			TargetActor->GetComponents<UStaticMeshComponent>(StaticComps);
-			TargetMesh = StaticComps[0];
+			//TArray<USkeletalMeshComponent*> Skeletal;
 
-			TargetMesh->SetRenderCustomDepth(true);
+			//USkeletalMeshComponent* skeTest = StaticComps[0]->GetChildrenComponents(Skeletal);
+			//TSubclassOf<UStaticMeshComponent> mesh;
+			//TArray<UActorComponent*> Mesh = GetComponentsByTag(mesh, "Mesh");
+			TargetMesh = StaticComps[0];
+			if (TargetMesh)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Mesh %s"), *TargetMesh->GetName());
+				TargetMesh->bRenderCustomDepth = true;
+				
+				TargetMesh->SetRenderCustomDepth(true);
+			}
 
 			CurrentTarget = SensedPawn;
 			SetTargetEnemy(SensedPawn);
@@ -167,16 +187,19 @@ void AAITowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns)
 			SetSelfActor(Tower);
 		}
 	}
-	else if(Label == "Enemy" && Tower->TowerObjectData.bPlaced)
+	else if (Label == "Enemy" && Tower->TowerObjectData.bPlaced)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Remove Pawn"));
 		CurrentPawns.Remove(DetectedPawns[0]);
-		TargetMesh->SetRenderCustomDepth(false);
+		if (TargetMesh)
+		{
+			TargetMesh->SetRenderCustomDepth(false);
+		}
 		CurrentTarget = nullptr;
 		SetTargetEnemy(nullptr);
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("Out Pawn Detected"));
-	
+
 
 	/*
 	for (auto& Actor : CurrentPawns)
@@ -240,10 +263,10 @@ APawn * AAITowerController::TargetWasKilled()
 		APawn* NewSensedPawn = Cast<APawn>(CurrentPawns[0]);
 		CurrentTarget = NewSensedPawn;
 		SetTargetEnemy(NewSensedPawn);
-		
+
 		return NewSensedPawn;
 	}
-	
+
 
 	return nullptr;
 }

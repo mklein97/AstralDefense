@@ -6,6 +6,9 @@
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 
+#include "Components/CapsuleComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -101,8 +104,10 @@ void AAILineTowerController::Tick(float DeltaSeconds)
 			{
 				APawn* SensedPawn = Cast<APawn>(CurrentPawns[0]);
 
-
-				TargetMesh->SetRenderCustomDepth(true);
+				if (TargetMesh)
+				{
+					TargetMesh->SetRenderCustomDepth(true);
+				}
 				CurrentTarget = SensedPawn;
 				SetTargetEnemy(SensedPawn);
 			}
@@ -152,9 +157,12 @@ void AAILineTowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns
 			TArray<UStaticMeshComponent*> StaticComps;
 			AActor* TargetActor = Cast<AActor>(SensedPawn);
 			TargetActor->GetComponents<UStaticMeshComponent>(StaticComps);
+			
 			TargetMesh = StaticComps[0];
-
-			TargetMesh->SetRenderCustomDepth(true);
+			if (TargetMesh)
+			{
+				TargetMesh->SetRenderCustomDepth(true);
+			}
 			CurrentTarget = SensedPawn;
 
 			SetTargetEnemy(SensedPawn);
@@ -166,7 +174,10 @@ void AAILineTowerController::OnPawnDetected(const TArray<AActor*>& DetectedPawns
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("Remove Pawn"));
 		CurrentPawns.Remove(DetectedPawns[0]);
-		TargetMesh->SetRenderCustomDepth(false);
+		if (TargetMesh)
+		{
+			TargetMesh->SetRenderCustomDepth(false);
+		}
 		CurrentTarget = nullptr;
 		SetTargetEnemy(nullptr);
 	}
