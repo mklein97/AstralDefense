@@ -85,7 +85,7 @@ void AAstralDefensePlayerController::PlaceTower()
 
 					if (Tower->TowerObjectData.bCollidesToggle)
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
 						Tower->SetPlaced();
 						///
@@ -112,7 +112,7 @@ void AAstralDefensePlayerController::PlaceTower()
 					}
 					else
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
 					}
 					//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
 				}
@@ -143,7 +143,7 @@ void AAstralDefensePlayerController::PlaceTower()
 
 					if (Tower->TowerObjectData.bCollidesToggle)
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Emerald, TEXT("Attempting to Place Tower."));
 
 						Tower->SetPlaced();
 
@@ -169,7 +169,7 @@ void AAstralDefensePlayerController::PlaceTower()
 					}
 					else
 					{
-						GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
+						//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Attempting to Place Tower."));
 					}
 					//UE_LOG(LogTemp, Warning, TEXT("COMPARE TOWER: %s"), *Tower->GetName());
 				}

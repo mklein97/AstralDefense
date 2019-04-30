@@ -16,7 +16,21 @@
 #include "BehaviorTree/Blackboard/BlackboardKeyAllTypes.h"
 #include "NavigationSystem.h"
 
+#include "Particles/ParticleSystemComponent.h"
+#include "Components/AudioComponent.h"
+
+#include "Engine/World.h"
+
 #include "DrawDebugHelpers.h"
+
+void UBTTask_FireAtTarget::ToDespawn(UParticleSystemComponent* Particle, UAudioComponent* Audio)
+{
+	Particle->Deactivate();
+	if (Audio)
+	{
+		Audio->Deactivate();
+	}
+}
 
 EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & OwnerComp, uint8 * NodeMemory)
 {
@@ -75,8 +89,10 @@ EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & O
 
 				//ActorSpawnParams.Instigator = this;
 				/// spawn the projectile at the muzzle
-				//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), LineTower->Particle, SpawnLocation, SpawnRotation, false);				
-				UGameplayStatics::SpawnEmitterAttached(LineTower->Particle, LineTower->MeshComp, "TempParticle", SpawnLocation, SpawnRotation, EAttachLocation::KeepWorldPosition, false);
+				//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), LineTower->Particle, SpawnLocation, SpawnRotation, false);	
+				
+				UParticleSystemComponent * SpawnedParticle = UGameplayStatics::SpawnEmitterAttached(LineTower->Particle, LineTower->MeshComp, "TempParticle", SpawnLocation, SpawnRotation, EAttachLocation::KeepWorldPosition, false);
+				SpawnedParticle->SetGenerateOverlapEvents(true);
 				//auto Projectile = Cast<UParticleSystem>(UGameplayStatics::BeginDeferredActorSpawnFromClass(GetWorld(), LineTower->Particle, FTransform(SpawnRotation, SpawnLocation)));
 				//GetWorld()->SpawnActor<ASingleLaserProjectile>(Tower->ProjectileClass, SpawnLocation, SpawnRotation, ActorSpawnParams);
 				//if (Projectile != nullptr)
@@ -87,10 +103,13 @@ EBTNodeResult::Type UBTTask_FireAtTarget::ExecuteTask(UBehaviorTreeComponent & O
 				//	UGameplayStatics::FinishSpawningActor(Projectile, FTransform(SpawnRotation, SpawnLocation));
 				//}
 				/// try and play the sound if specified
+					UAudioComponent* SpawnedAudio = nullptr;
 				if (LineTower->FireSound)
 				{
-					UGameplayStatics::PlaySoundAtLocation(this, LineTower->FireSound, LineTower->GetActorLocation());
+					SpawnedAudio = UGameplayStatics::SpawnSoundAtLocation(this, LineTower->FireSound, LineTower->GetActorLocation());
 				}
+				TimerDel.BindUFunction(this, FName("ToDespawn"), SpawnedParticle, SpawnedAudio);
+				GetWorld()->GetTimerManager().SetTimer(ParticleDespawnHandle, TimerDel, 0.5f, false);
 
 				return EBTNodeResult::Succeeded;
 			}
