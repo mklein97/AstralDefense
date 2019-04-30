@@ -136,6 +136,10 @@ public:
 	void SetSelected();
 	void DisableAttackRadiusDecal();
 	void EnableAttackRadiusDecal();
+
+	void SetUnable2Place();
+	void SetAble2Place();
+
 	bool IsCollidingWith(ITowerInterface &otherActor);
 
 	UFUNCTION()

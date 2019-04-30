@@ -144,103 +144,6 @@ AOneMissileTower::AOneMissileTower(const class FObjectInitializer& ObjectInitial
 
 }
 
-FTowerObjectData * AOneMissileTower::GetDataStruct()
-{
-	return &TowerObjectData;
-}
-
-void AOneMissileTower::SetPlaced()
-{
-	ITowerInterface::SetPlaced();
-	TowerObjectData.ActorLocation = this->GetActorLocation();
-	TowerObjectData.CollisionBounds = CollisionComp->CalcBounds(FTransform(
-		FRotator(0, 0, 0),
-		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
-		FVector(1, 1, 1)));
-	DisableAttackRadiusDecal();
-	this->SetActorEnableCollision(true);
-}
-
-int32 AOneMissileTower::TowerCost(int32 CurrentStarbucks)
-{
-	return ITowerInterface::TowerCost(CurrentStarbucks);
-}
-
-void AOneMissileTower::SetSelected()
-{
-	EnableAttackRadiusDecal();
-	TowerObjectData.AttackRadMatInst = UMaterialInstanceDynamic::Create(AttackRadMat, this);
-	TowerObjectData.bSelected = true;
-
-	MaterialPlane->SetMaterial(0, TowerObjectData.AttackRadMatInst);
-}
-
-void AOneMissileTower::DisableAttackRadiusDecal()
-{
-	MaterialPlane->SetHiddenInGame(true);
-}
-
-void AOneMissileTower::EnableAttackRadiusDecal()
-{
-	MaterialPlane->SetHiddenInGame(false);
-}
-
-
-bool AOneMissileTower::IsCollidingWith(ITowerInterface & otherActor)
-{
-	return false;
-}
-
-void AOneMissileTower::OnCollision(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult & Hit)
-{
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("We got a collision."));
-
-	if (this->TowerObjectData.bPlacing)
-	{
-		if ((OtherActor != NULL))// && (OtherActor != this) && (OtherComp != NULL))
-		{
-			//ASingleLaserTower * OtherTower = Cast<ASingleLaserTower>(OtherActor);
-			EnableAttackRadiusDecal();
-			TowerObjectData.UnableMatInst = UMaterialInstanceDynamic::Create(UnableMat, this);
-
-			MaterialPlane->SetMaterial(0, TowerObjectData.UnableMatInst);
-
-			UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to Red!"));
-
-
-			TowerObjectData.bCollidesToggle = false;
-			TowerObjectData.bNotCollidesToggle = true;
-		}
-
-	}
-}
-
-void AOneMissileTower::OffCollision(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
-{
-	if (this->TowerObjectData.bPlacing)
-	{
-		EnableAttackRadiusDecal();
-		TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
-
-		MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
-
-		UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to GREEN!"));
-
-
-		TowerObjectData.bNotCollidesToggle = false;
-		TowerObjectData.bCollidesToggle = true;
-	}
-}
-
-
-void AOneMissileTower::SetTowerType(ETowerBehaviorType NewType)
-{
-	ITowerInterface::SetTowerType(NewType);
-	
-	//BroadcastUpdateAudio(bSensedTarget);
-}
-
-
 // Called when the game starts or when spawned
 void AOneMissileTower::BeginPlay()
 {
@@ -327,6 +230,19 @@ void AOneMissileTower::Tick(float DeltaTime)
 		FHitResult TraceHitResult;
 		PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
 		FVector CursorFV = TraceHitResult.ImpactNormal;
+		UE_LOG(LogTemp, Warning, TEXT("Imp Normal: %s"), *CursorFV.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Imp Normal Z: %f"), CursorFV.Z);
+
+		if ((TraceHitResult.bBlockingHit && TraceHitResult.GetActor()->Tags.FindByKey("Floor")) || CursorFV.Z < .99f)
+		{
+			SetUnable2Place();
+		}
+		else
+		{
+			SetAble2Place();
+		}
+
+
 		FRotator CursorR = CursorFV.Rotation();
 		this->SetActorLocation(TraceHitResult.Location);
 		this->SetActorRotation(this->GetActorRotation());
@@ -402,6 +318,117 @@ void AOneMissileTower::Tick(float DeltaTime)
 	}
 
 }
+
+
+FTowerObjectData * AOneMissileTower::GetDataStruct()
+{
+	return &TowerObjectData;
+}
+
+void AOneMissileTower::SetPlaced()
+{
+	ITowerInterface::SetPlaced();
+	TowerObjectData.ActorLocation = this->GetActorLocation();
+	TowerObjectData.CollisionBounds = CollisionComp->CalcBounds(FTransform(
+		FRotator(0, 0, 0),
+		FVector(this->GetActorLocation().X, this->GetActorLocation().Y, 50),
+		FVector(1, 1, 1)));
+	DisableAttackRadiusDecal();
+	this->SetActorEnableCollision(true);
+}
+
+int32 AOneMissileTower::TowerCost(int32 CurrentStarbucks)
+{
+	return ITowerInterface::TowerCost(CurrentStarbucks);
+}
+
+void AOneMissileTower::SetSelected()
+{
+	EnableAttackRadiusDecal();
+	TowerObjectData.AttackRadMatInst = UMaterialInstanceDynamic::Create(AttackRadMat, this);
+	TowerObjectData.bSelected = true;
+
+	MaterialPlane->SetMaterial(0, TowerObjectData.AttackRadMatInst);
+}
+
+void AOneMissileTower::DisableAttackRadiusDecal()
+{
+	MaterialPlane->SetHiddenInGame(true);
+}
+
+void AOneMissileTower::EnableAttackRadiusDecal()
+{
+	MaterialPlane->SetHiddenInGame(false);
+}
+
+void AOneMissileTower::SetUnable2Place()
+{
+	//ASingleLaserTower * OtherTower = Cast<ASingleLaserTower>(OtherActor);
+	EnableAttackRadiusDecal();
+	TowerObjectData.UnableMatInst = UMaterialInstanceDynamic::Create(UnableMat, this);
+
+	MaterialPlane->SetMaterial(0, TowerObjectData.UnableMatInst);
+
+	UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to Red!"));
+
+
+	TowerObjectData.bCollidesToggle = false;
+	TowerObjectData.bNotCollidesToggle = true;
+}
+
+void AOneMissileTower::SetAble2Place()
+{
+	EnableAttackRadiusDecal();
+	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
+
+	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
+
+	UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to GREEN!"));
+
+
+	TowerObjectData.bNotCollidesToggle = false;
+	TowerObjectData.bCollidesToggle = true;
+}
+
+
+bool AOneMissileTower::IsCollidingWith(ITowerInterface & otherActor)
+{
+	return false;
+}
+
+void AOneMissileTower::OnCollision(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult & Hit)
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("We got a collision."));
+
+	if (this->TowerObjectData.bPlacing)
+	{
+		if ((OtherActor != NULL))// && (OtherActor != this) && (OtherComp != NULL))
+		{
+			SetUnable2Place();
+		}
+
+	}
+}
+
+void AOneMissileTower::OffCollision(UPrimitiveComponent * OverlappedComponent, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex)
+{
+	if (this->TowerObjectData.bPlacing)
+	{
+		SetAble2Place();
+	}
+}
+
+
+void AOneMissileTower::SetTowerType(ETowerBehaviorType NewType)
+{
+	ITowerInterface::SetTowerType(NewType);
+	
+	//BroadcastUpdateAudio(bSensedTarget);
+}
+
+
+
+
 
 
 UAudioComponent * AOneMissileTower::PlayCharacterSound(USoundCue * CueToPlay)

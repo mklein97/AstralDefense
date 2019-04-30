@@ -9,7 +9,10 @@
 #include "Kismet/GameplayStatics.h"
 
 #include "Engine/Classes/Components/AudioComponent.h"
+#include "Sound/SoundCue.h"
 #include "Perception/PawnSensingComponent.h"
+
+#include "Particles/ParticleSystemComponent.h"
 
 #include "UObject/ConstructorHelpers.h"
 
@@ -41,10 +44,12 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 	AudioLoopComp->SetupAttachment(RootComponent);
 	////////////////////////
 
-
+	ParticleComp = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Particle Comp"));
+	ParticleComp->SetupAttachment(RootComponent);
 
 	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Comp"));
 	MeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
 
 	MaterialPlane = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Plane Material"));
 	MaterialPlane->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -63,13 +68,13 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 		PlacementMat = PlacementObj.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerRange.M_TowerRange'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>UnableObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerUnable.M_TowerUnable'"));
 	if (UnableObj.Succeeded())
 	{
 		UnableMat = UnableObj.Object;
 	}
 
-	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerUnable.M_TowerUnable'"));
+	ConstructorHelpers::FObjectFinder<UMaterialInstance>RangeObj(TEXT("MaterialInstanceConstant'/Game/Assets/Towers/Materials/M_TowerRange.M_TowerRange'"));
 	if (RangeObj.Succeeded())
 	{
 		AttackRadMat = RangeObj.Object;
@@ -99,7 +104,12 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 		FVector(1.0, 1.0, 1.0));	// Scale
 
 
-
+	ParticleCollComp = CreateDefaultSubobject<UBoxComponent>(TEXT("Particle Collision Comp"));
+	ParticleCollComp->SetRelativeTransform(
+		FTransform(
+			FRotator(0, 0, 0),
+			FVector(620, 0, 30),
+			FVector(17.5, 1.0, 1.0)));
 
 	MeshComp->SetupAttachment(RootComponent);
 
@@ -107,6 +117,7 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 
 	CollisionComp->SetupAttachment(MeshComp);
 
+	ParticleCollComp->SetupAttachment(MeshComp);
 
 	RootComponent = MeshComp;
 
@@ -126,7 +137,7 @@ AInLineTower::AInLineTower(const class FObjectInitializer& ObjectInitializer) : 
 
 	TowerObjectData.AILineController = Cast<AAILineTowerController>(GetController());
 	TowerObjectData.CurrentTarget = nullptr;
-	this->SetActorEnableCollision(false);
+	this->SetActorEnableCollision(true);
 
 }
 
@@ -140,6 +151,9 @@ void AInLineTower::BeginPlay()
 	{
 		Cast<AAstralDefensePlayerController>(PlayerController)->SetPlacingTower(Cast<ITowerInterface>(this));
 	}
+	MeshComp->SetCollisionProfileName("TowerVisibility");
+	MeshComp->SetCollisionResponseToChannel(ECollisionChannel::ECC_GameTraceChannel2, ECollisionResponse::ECR_Block);
+
 	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
 
 	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
@@ -149,6 +163,11 @@ void AInLineTower::BeginPlay()
 	TowerObjectData.MeshBounds = MeshComp->CalcBounds(FTransform());
 
 	CollisionComp->SetSphereRadius((TowerObjectData.MeshBounds.BoxExtent.X + TowerObjectData.MeshBounds.BoxExtent.Y) / 2);
+	ParticleCollComp->SetRelativeTransform(
+		FTransform(
+			FRotator(0, 0, 0),
+			FVector(620, 0, 30),
+			FVector(17.5, 1.0, 1.0)));
 
 	TowerObjectData.CollisionBounds = CollisionComp->CalcBounds(FTransform(
 		FRotator(0, 0, 0),
@@ -181,7 +200,7 @@ void AInLineTower::BeginPlay()
 	TowerObjectData.AILineController = Cast<AAILineTowerController>(this->GetController());
 	TowerObjectData.CurrentTarget = nullptr;
 
-	this->SetActorEnableCollision(false);
+	this->SetActorEnableCollision(true);
 
 }
 
@@ -197,6 +216,15 @@ void AInLineTower::Tick(float DeltaTime)
 		PlayerController->GetHitResultUnderCursor(ECC_Visibility, true, TraceHitResult);
 		
 		FVector CursorFV = TraceHitResult.ImpactNormal;
+		if ((TraceHitResult.bBlockingHit && TraceHitResult.GetActor()->Tags.FindByKey("Floor")) || CursorFV.Z < .99f)
+		{
+			SetUnable2Place();
+		}
+		else
+		{
+			SetAble2Place();
+		}
+
 		FRotator CursorR = CursorFV.Rotation();
 		this->SetActorLocation(TraceHitResult.Location);
 		this->SetActorRotation(this->GetActorRotation());
@@ -214,8 +242,6 @@ void AInLineTower::Tick(float DeltaTime)
 			1.0f);
 
 		*/
-		FHitResult Selection;
-		PlayerController->GetHitResultUnderCursorByChannel(UEngineTypes::ConvertToTraceType(COLLISION_TOWERS), false, Selection);
 
 		if (!TowerObjectData.bSelected)
 		{
@@ -319,26 +345,44 @@ void AInLineTower::EnableAttackRadiusDecal()
 	MaterialPlane->SetHiddenInGame(false);
 }
 
+void AInLineTower::SetUnable2Place()
+{
+	//ASingleLaserTower * OtherTower = Cast<ASingleLaserTower>(OtherActor);
+	EnableAttackRadiusDecal();
+	TowerObjectData.UnableMatInst = UMaterialInstanceDynamic::Create(UnableMat, this);
+
+	MaterialPlane->SetMaterial(0, TowerObjectData.UnableMatInst);
+
+	UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to Red!"));
+
+
+	TowerObjectData.bCollidesToggle = false;
+	TowerObjectData.bNotCollidesToggle = true;
+}
+
+void AInLineTower::SetAble2Place()
+{
+	EnableAttackRadiusDecal();
+	TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
+
+	MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
+
+	UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to GREEN!"));
+
+
+	TowerObjectData.bNotCollidesToggle = false;
+	TowerObjectData.bCollidesToggle = true;
+}
 
 void AInLineTower::OnCollision(UPrimitiveComponent * HitComp, AActor * OtherActor, UPrimitiveComponent * OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult & Hit)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("We got a collision."));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("We got a collision."));
 
 	if (this->TowerObjectData.bPlacing)
 	{
 		if ((OtherActor != NULL))// && (OtherActor != this) && (OtherComp != NULL))
 		{
-			//ASingleLaserTower * OtherTower = Cast<ASingleLaserTower>(OtherActor);
-			EnableAttackRadiusDecal();
-			TowerObjectData.UnableMatInst = UMaterialInstanceDynamic::Create(UnableMat, this);
-
-			MaterialPlane->SetMaterial(0, TowerObjectData.UnableMatInst);
-
-			UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to Red!"));
-
-
-			TowerObjectData.bCollidesToggle = false;
-			TowerObjectData.bNotCollidesToggle = true;
+			SetUnable2Place();
 		}
 
 	}
@@ -348,16 +392,7 @@ void AInLineTower::OffCollision(UPrimitiveComponent * OverlappedComponent, AActo
 {
 	if (this->TowerObjectData.bPlacing)
 	{
-		EnableAttackRadiusDecal();
-		TowerObjectData.PlacementMatInst = UMaterialInstanceDynamic::Create(PlacementMat, this);
-
-		MaterialPlane->SetMaterial(0, TowerObjectData.PlacementMatInst);
-
-		UE_LOG(LogTemp, Warning, TEXT("ChangingDecal to GREEN!"));
-
-
-		TowerObjectData.bNotCollidesToggle = false;
-		TowerObjectData.bCollidesToggle = true;
+		SetAble2Place();
 	}
 }
 

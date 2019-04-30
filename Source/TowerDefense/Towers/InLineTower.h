@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "TowerInterface.h"
 #include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "../AstralDefensePlayerController.h"
 #include "InLineTower.generated.h"
@@ -14,6 +15,7 @@ class USoundCue;
 class UAudioComponent;
 class AAITowerController;
 class UParticleSystem;
+class UParticleSystemComponent;
 UCLASS()
 class TOWERDEFENSE_API AInLineTower : public APawn, public ITowerInterface
 {
@@ -30,6 +32,9 @@ public:
 		USphereComponent* CollisionComp;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+		UBoxComponent* ParticleCollComp;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 		UStaticMeshComponent* MaterialPlane;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
@@ -38,7 +43,10 @@ public:
 	/** Projectile class to spawn */
 	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 		UParticleSystem* Particle;
-	UParticleSystem* TempParticle;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UParticleSystemComponent* ParticleComp;
+	//UParticleSystem* TempParticle;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Gameplay")
 		USoundBase* FireSound;
@@ -91,6 +99,9 @@ public:
 	void SetSelected();
 	void DisableAttackRadiusDecal();
 	void EnableAttackRadiusDecal();
+
+	void SetUnable2Place();
+	void SetAble2Place();
 
 	UFUNCTION()
 		void OnCollision(UPrimitiveComponent* HitComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromHit, const FHitResult& Hit);
